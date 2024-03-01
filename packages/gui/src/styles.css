@@ -1,0 +1,60 @@
+body {
+  overflow-y: hidden;
+}
+/* Set theme color */
+.nav-wrapper {
+  background-color: #314443;
+}
+.dropdown-content {
+  max-height: 350px !important;
+  overflow-y: auto !important;
+  backface-visibility: hidden !important;
+}
+p {
+  margin: 0px 0;
+}
+
+#mapboxMap {
+  position: absolute;
+  top: 0px;
+  width: 100vw;
+  /* width: calc(100% - 250px); */
+  bottom: 0;
+  left: 0;
+}
+
+#slide-out {
+  position: absolute;
+  top: 67px;
+  width: 250px;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+/* LEGEND CONTROL */
+.legend-control {
+  position: absolute;
+  max-width: 30%;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  background: white;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.clickable {
+  margin: 5px 0;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.ml10 {
+  margin-left: 10px;
+}
+
+.sidenav-overlay {
+  height: 0px;
+  width: 0px;
+}
