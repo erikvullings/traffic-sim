@@ -49,7 +49,7 @@ export const SettingsPage: MeiosisComponent = () => {
       ],
       className: 'col s4 m2',
     },
-    { id: 'defaultIcon', type: 'switch', label: t('DEFAULT_ICON'), className: 'col s4 m3' },
+    { id: 'defaultIcon', type: 'switch', label: t('DEFAULT_ICON'), className: 'col s4 m3 h84' },
     {
       id: 'icon',
       type: 'base64',
@@ -58,6 +58,8 @@ export const SettingsPage: MeiosisComponent = () => {
       required: true,
       options: [{ id: '.png' }],
     },
+    { id: 'lat', type: 'number', label: t('LAT'), className: 'col s6', newLine: true },
+    { id: 'lon', type: 'number', label: t('LON'), className: 'col s6' },
     { id: 'desc', type: 'text', label: t('DESCRIPTION') },
   ];
 
@@ -76,7 +78,7 @@ export const SettingsPage: MeiosisComponent = () => {
       ],
       className: 'col s4 m2',
     },
-    { id: 'defaultIcon', type: 'switch', label: t('DEFAULT_ICON'), className: 'col s4 m3' },
+    { id: 'defaultIcon', type: 'switch', label: t('DEFAULT_ICON'), className: 'col s4 m3 h84' },
     {
       id: 'icon',
       type: 'base64',
@@ -85,6 +87,8 @@ export const SettingsPage: MeiosisComponent = () => {
       required: true,
       options: [{ id: '.png' }],
     },
+    { id: 'lat', type: 'number', label: t('LAT'), className: 'col s6' },
+    { id: 'lon', type: 'number', label: t('LON'), className: 'col s6' },
     { id: 'desc', type: 'text', label: t('DESCRIPTION') },
   ];
 
