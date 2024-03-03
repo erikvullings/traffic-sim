@@ -11,7 +11,7 @@ export const Layout: MeiosisComponent = () => {
 
   return {
     view: ({ children, attrs: { state, actions } }) => {
-      const { page } = state;
+      const { page, settings: { appName = APP_TITLE } = {} } = state;
       const { changePage } = actions;
       const curPage = routingSvc
         .getList()
@@ -37,7 +37,7 @@ export const Layout: MeiosisComponent = () => {
                     m(`img[width=50][height=50][src=${logo}][alt=logo]`, {
                       style: 'margin-top: 5px; margin-left: -5px;',
                     }),
-                    m('span', { style: 'margin-left: 20px; vertical-align: top;' }, APP_TITLE),
+                    m('span', { style: 'margin-left: 20px; vertical-align: top;' }, appName),
                   ]
                 ),
                 m('ul.right.hide-on-med-and-down', [

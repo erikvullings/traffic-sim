@@ -89,6 +89,7 @@ export const SettingsPage: MeiosisComponent = () => {
   ];
 
   const form = [
+    { id: 'appName', label: t('APP_NAME'), type: 'text' },
     { id: 'vehicles', label: t('VEHICLES'), type: vehicleForm, repeat: true, pageSize: 10 },
     { id: 'pois', label: t('POIS'), type: poiForm, repeat: true, pageSize: 10 },
   ] as UIForm<Settings>;

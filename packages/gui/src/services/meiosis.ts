@@ -36,12 +36,13 @@ export type MeiosisComponent<T extends { [key: string]: any } = {}> = FactoryCom
   options?: T;
 }>;
 
-export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update /* states */ }) => ({
+export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, states }) => ({
   // addDucks: (cell, amount) => {
   //   cell.update({ ducks: (value) => value + amount });
   // },
   setPage: (page, info) => {
-    document.title = `${APP_TITLE} | ${page.replace('_', ' ')}${info ? ` | ${info}` : ''}`;
+    const { settings: { appName = APP_TITLE } = {} } = states();
+    document.title = `${appName} | ${page.replace('_', ' ')}${info ? ` | ${info}` : ''}`;
     // const curPage = states().page;
     // if (curPage === page) return;
     update({
@@ -52,8 +53,9 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update /* st
     });
   },
   changePage: (page, params, query) => {
+    const { settings: { appName = APP_TITLE } = {} } = states();
     routingSvc && routingSvc.switchTo(page, params, query);
-    document.title = `${APP_TITLE} | ${page.replace('_', ' ')}`;
+    document.title = `${appName} | ${page.replace('_', ' ')}`;
     update({ page });
   },
   saveSettings: async (settings: Settings) => {

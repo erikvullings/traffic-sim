@@ -46,6 +46,7 @@ export type PointOfInterest = Location & {
 };
 
 export type Settings = {
+  appName?: string;
   vehicles: Vehicle[];
   pois: PointOfInterest[];
 };
