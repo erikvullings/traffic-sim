@@ -1,6 +1,7 @@
 import m from 'mithril';
 import { Pages } from '../models';
 import { MeiosisComponent } from '../services';
+import { MapComponent } from './map';
 
 export const HomePage: MeiosisComponent = () => {
   return {
@@ -9,8 +10,8 @@ export const HomePage: MeiosisComponent = () => {
         actions: { setPage },
       },
     }) => setPage(Pages.HOME),
-    view: () => {
-      return [m('#home-page.row.home.page', 'HOME-PAGE')];
+    view: ({ attrs: { state, actions } }) => {
+      return [m('#home-page.home', m(MapComponent, { state, actions }))];
     },
   };
 };

@@ -113,33 +113,36 @@ export const SettingsPage: MeiosisComponent = () => {
         actions: { saveSettings },
       },
     }) => {
-      return m('#settings-page.row.settings.page', [
-        m('h5.col.s12', t('SETTINGS', 'TITLE')),
-        m(LayoutForm, {
-          form,
-          obj: settings,
-          onchange: () => {
-            console.log(settings);
-            const { vehicles = [], pois = [] } = settings;
-            vehicles.forEach((v) => {
-              if (v.defaultIcon) {
-                const icon = defaultIcons.get(v.type);
-                // console.log(icon);
-                if (icon) v.icon = icon;
-              }
-            });
-            pois.forEach((p) => {
-              console.log(p.icon);
-              if (p.defaultIcon) {
-                const icon = defaultIcons.get(p.type);
-                // console.log(icon);
-                if (icon) p.icon = icon;
-              }
-            });
-            saveSettings(settings);
-          },
-        } as FormAttributes<Settings>),
-      ]);
+      return m(
+        '.container',
+        m('#settings-page.row.settings.page', [
+          m('h5.col.s12', t('SETTINGS', 'TITLE')),
+          m(LayoutForm, {
+            form,
+            obj: settings,
+            onchange: () => {
+              console.log(settings);
+              const { vehicles = [], pois = [] } = settings;
+              vehicles.forEach((v) => {
+                if (v.defaultIcon) {
+                  const icon = defaultIcons.get(v.type);
+                  // console.log(icon);
+                  if (icon) v.icon = icon;
+                }
+              });
+              pois.forEach((p) => {
+                console.log(p.icon);
+                if (p.defaultIcon) {
+                  const icon = defaultIcons.get(p.type);
+                  // console.log(icon);
+                  if (icon) p.icon = icon;
+                }
+              });
+              saveSettings(settings);
+            },
+          } as FormAttributes<Settings>),
+        ])
+      );
     },
   };
 };

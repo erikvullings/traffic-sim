@@ -15,8 +15,8 @@ importers:
   packages/gui:
     dependencies:
       maplibre-gl:
-        specifier: ^4.0.2
-        version: 4.0.2
+        specifier: ^4.1.0
+        version: 4.1.0
       material-icons:
         specifier: ^1.13.12
         version: 1.13.12
@@ -45,6 +45,12 @@ importers:
       '@rspack/core':
         specifier: ^0.5.5
         version: 0.5.5
+      '@types/geojson':
+        specifier: 7946.0.14
+        version: 7946.0.14
+      '@types/mapbox-gl':
+        specifier: 3.1.0
+        version: 3.1.0
       '@types/materialize-css':
         specifier: ^1.0.14
         version: 1.0.14
@@ -474,7 +480,6 @@ packages:
 
   /@types/geojson@7946.0.14:
     resolution: {integrity: sha512-WCfD5Ht3ZesJUsONdhvm84dmzWOiOzOAqOncN0++w0lBw1o8OuDNJF2McvvCef/yBqb/HYRahp1BYtODFQ8bRg==}
-    dev: false
 
   /@types/http-errors@2.0.4:
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
@@ -494,6 +499,12 @@ packages:
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+    dev: true
+
+  /@types/mapbox-gl@3.1.0:
+    resolution: {integrity: sha512-hI6cQDjw1bkJw7MC/eHMqq5TWUamLwsujnUUeiIX2KDRjxRNSYMjnHz07+LATz9I9XIsKumOtUz4gRYnZOJ/FA==}
+    dependencies:
+      '@types/geojson': 7946.0.14
     dev: true
 
   /@types/mapbox__point-geometry@0.1.4:
@@ -1870,8 +1881,8 @@ packages:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
     dev: true
 
-  /maplibre-gl@4.0.2:
-    resolution: {integrity: sha512-1HlJJyfPIbAwK1OlNzKDyuNf1NKlEwsjZZhPYpazX4yoP6ud1aC7DNct62fMSkn+hd6mRekIqzYEzIfOCC31QQ==}
+  /maplibre-gl@4.1.0:
+    resolution: {integrity: sha512-4RQFJSroo/JAJml6Rj2FFIZOfnjsqPp0O9kSp8aVXQUY0HGXNupltzPKbBZeucqi7ynRQHFeu+onTM3hY0Makw==}
     engines: {node: '>=16.14.0', npm: '>=8.1.0'}
     dependencies:
       '@mapbox/geojson-rewind': 0.5.2

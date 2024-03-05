@@ -2,6 +2,7 @@ import m from 'mithril';
 import 'material-icons/iconfont/filled.css';
 import 'materialize-css/dist/css/materialize.min.css';
 import 'materialize-css/dist/js/materialize.min.js';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import './css/style.css';
 import { routingSvc } from './services/routing-service';
 import { LANGUAGE } from './utils';

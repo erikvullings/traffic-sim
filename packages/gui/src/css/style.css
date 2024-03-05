@@ -3,10 +3,11 @@
     width: 95%;
   }
 }
-
 .container {
+  padding-top: 1rem;
   max-width: unset;
 }
+
 body {
   font-size: 18px;
 }
@@ -813,4 +814,14 @@ ul.kanban > li {
 
 .h84 {
   height: 84px;
+}
+
+#mapboxMap {
+  position: absolute;
+  top: 65px;
+  width: calc(100vw - 10px);
+  height: calc(100vh - 65px);
+  bottom: 0;
+  left: 0;
+  right: 0;
 }

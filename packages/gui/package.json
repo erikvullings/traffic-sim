@@ -18,7 +18,7 @@
   "app": "src/app.ts",
   "target": "web",
   "dependencies": {
-    "maplibre-gl": "^4.0.2",
+    "maplibre-gl": "^4.1.0",
     "material-icons": "^1.13.12",
     "materialize-css": "^1.0.0",
     "meiosis-setup": "^6.2.3",
@@ -32,6 +32,8 @@
     "@rspack/core": "^0.5.5",
     "@types/materialize-css": "^1.0.14",
     "@types/mithril": "^2.2.6",
+    "@types/geojson": "7946.0.14",
+    "@types/mapbox-gl": "3.1.0",
     "dotenv": "16.4.5",
     "rimraf": "^5.0.5",
     "sass": "^1.71.1",

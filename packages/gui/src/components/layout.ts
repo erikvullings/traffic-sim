@@ -70,7 +70,8 @@ export const Layout: MeiosisComponent = () => {
             )
           ),
           curPage && curPage.hasSidebar && [m(SideNavTrigger, {}), m(SideNav, { state, actions })],
-          m('.container', { style: 'padding-top: 1rem' }, children),
+          children,
+          // m('.container', { style: 'padding-top: 1rem' }, children),
         ]),
       ];
     },
