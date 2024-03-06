@@ -2,6 +2,7 @@ import m from 'mithril';
 import { Pages, PoiType, PointOfInterest, Settings, Vehicle, VehicleType } from '../models';
 import { MeiosisComponent, t } from '../services';
 import { FormAttributes, LayoutForm, UIForm } from 'mithril-ui-form';
+import { UploadDownload } from './ui/upload-download';
 
 export const SettingsPage: MeiosisComponent = () => {
   const defaultIcons = new Map<VehicleType | PoiType, string>([
@@ -33,7 +34,7 @@ export const SettingsPage: MeiosisComponent = () => {
 
   const vehicleForm: UIForm<Vehicle> = [
     { id: 'id', autogenerate: 'id', type: 'text', className: 'col s4 m2', required: true },
-    { id: 'name', type: 'text', label: t('NAME'), className: 'col s4 m2', required: true },
+    { id: 'label', type: 'text', label: t('NAME'), className: 'col s4 m2', required: true },
     {
       id: 'type',
       type: 'select',
@@ -58,14 +59,13 @@ export const SettingsPage: MeiosisComponent = () => {
       required: true,
       options: [{ id: '.png' }],
     },
-    { id: 'lat', type: 'number', label: t('LAT'), className: 'col s6', newLine: true },
-    { id: 'lon', type: 'number', label: t('LON'), className: 'col s6' },
-    { id: 'desc', type: 'text', label: t('DESCRIPTION') },
+    { id: 'poi', label: t('POI2'), type: 'select', options: 'pois', required: true },
+    { id: 'desc', type: 'textarea', label: t('DESCRIPTION') },
   ];
 
   const poiForm: UIForm<PointOfInterest> = [
     { id: 'id', autogenerate: 'id', type: 'text', className: 'col s4 m2', required: true },
-    { id: 'name', type: 'text', label: t('NAME'), className: 'col s4 m2', required: true },
+    { id: 'label', type: 'text', label: t('NAME'), className: 'col s4 m2', required: true },
     {
       id: 'type',
       type: 'select',
@@ -89,14 +89,14 @@ export const SettingsPage: MeiosisComponent = () => {
     },
     { id: 'lat', type: 'number', label: t('LAT'), className: 'col s6' },
     { id: 'lon', type: 'number', label: t('LON'), className: 'col s6' },
-    { id: 'desc', type: 'text', label: t('DESCRIPTION') },
+    { id: 'desc', type: 'textarea', label: t('DESCRIPTION') },
   ];
 
   const form = [
     { id: 'appName', label: t('APP_NAME'), type: 'text', className: 'col s6' },
     { id: 'mapUrl', label: t('MAP_URL'), type: 'url', className: 'col s6' },
-    { id: 'vehicles', label: t('VEHICLES'), type: vehicleForm, repeat: true, pageSize: 10 },
     { id: 'pois', label: t('POIS'), type: poiForm, repeat: true, pageSize: 10 },
+    { id: 'vehicles', label: t('VEHICLES'), type: vehicleForm, repeat: true, pageSize: 10 },
   ] as UIForm<Settings>;
 
   return {
@@ -116,6 +116,7 @@ export const SettingsPage: MeiosisComponent = () => {
       return m(
         '.container',
         m('#settings-page.row.settings.page', [
+          m('.col.s12.right', m(UploadDownload, { settings, saveSettings })),
           m('h5.col.s12', t('SETTINGS', 'TITLE')),
           m(LayoutForm, {
             form,

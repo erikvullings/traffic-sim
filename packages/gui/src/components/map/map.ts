@@ -17,8 +17,15 @@ export const MapComponent: MeiosisComponent = () => {
   let map: MaplibreMap;
 
   return {
-    view: () => {
-      return [m('#mapboxMap')];
+    view: ({
+      attrs: {
+        state: {
+          settings: { version },
+        },
+      },
+    }) => {
+      console.log(`VERSION: ${version}`);
+      return m('#mapboxMap', { key: `settings${version}` });
     },
     oncreate: ({
       attrs: {
@@ -59,7 +66,7 @@ export const MapComponent: MeiosisComponent = () => {
         // style: VECTOR_TILE_SERVER ? VECTOR_TILE_SERVER : brtStyle,
         center: getLonLat(),
         zoom: getZoomLevel(),
-        hash: 'loc',
+        // hash: 'loc',
       });
       loadMissingImages(map);
       // updateGrid(appState, actions, map);
@@ -67,7 +74,7 @@ export const MapComponent: MeiosisComponent = () => {
       map.on('load', () => {
         // Add draw controls
         // draw = new MapboxDraw(drawConfig);
-        map.addControl(new NavigationControl(), 'top-left');
+        map.addControl(new NavigationControl(), 'top-right');
         // map.addControl(draw as unknown as IControl, 'top-left');
         const scale = new ScaleControl({
           maxWidth: 200,

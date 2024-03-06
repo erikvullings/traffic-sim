@@ -2,7 +2,7 @@ import { meiosisSetup } from 'meiosis-setup';
 import { MeiosisCell } from 'meiosis-setup/types';
 import m, { FactoryComponent } from 'mithril';
 import { routingSvc } from '.';
-import { LayerStyle, Pages, Settings } from '../models';
+import { ID, LayerStyle, Pages, Settings } from '../models';
 import { User, UserRole } from './login-service';
 import { scrollToTop } from '../utils';
 import { ldb } from '../utils/local-ldb';
@@ -23,6 +23,8 @@ export interface State {
   layerStyles?: LayerStyle<Record<string, any>>[];
   // sources: Array<ISource>;
   mapStyle: string;
+  /** Selected vehicle */
+  curVehicleId?: ID;
 }
 
 export interface Actions {
@@ -43,6 +45,7 @@ export interface Actions {
   setLonLat: (lonlat: [lon: number, lat: number]) => void;
   getLonLat: () => [lon: number, lat: number];
 
+  update: (p: Partial<State>) => void;
   login: () => void;
 }
 
@@ -75,6 +78,8 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
     update({ page });
   },
   saveSettings: async (settings: Settings) => {
+    if (typeof settings.version === 'undefined') settings.version = 0;
+    settings.version++;
     // await settingsSvc.save(settings);
     await ldb.set('TRAFFIC_SIM_SETTINGS', JSON.stringify(settings));
     update({
@@ -100,6 +105,7 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
   },
   getLonLat: () => JSON.parse(localStorage.getItem(LON_LAT) || '[5, 51]') as [lon: number, lat: number],
 
+  update: (p) => update(p),
   login: () => {},
 });
 
@@ -108,7 +114,9 @@ const app = {
     page: Pages.HOME,
     loggedInUser: undefined,
     role: 'user',
-    settings: {} as Settings,
+    settings: {
+      version: 0,
+    } as Settings,
   } as State,
 };
 export const cells = meiosisSetup<State>({ app });

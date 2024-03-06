@@ -825,3 +825,26 @@ ul.kanban > li {
   left: 0;
   right: 0;
 }
+
+.map-routing {
+  position: absolute;
+  background-color: white;
+  padding: 1rem;
+  opacity: 0.7;
+  top: 80px;
+  width: 300px;
+  height: 400px;
+  left: 10px;
+  bottom: 0;
+}
+
+.mt18 {
+  margin-top: 18px;
+}
+
+.p0 {
+  padding: 0;
+}
+.p0 > i.left {
+  margin-right: 5px;
+}

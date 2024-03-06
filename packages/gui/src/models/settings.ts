@@ -8,6 +8,8 @@ export const setLanguage = async (locale = i18n.currentLocale) => {
   await i18n.loadAndSetLocale(locale);
 };
 
+export type ID = string;
+
 export type VehicleType = 'car' | 'truck' | 'bicycle' | 'pedestrian';
 export type PoiType = 'poi' | 'warehouse';
 
@@ -19,8 +21,8 @@ export type VehicleState = 'not_initialized' | 'moving' | 'paused';
 
 /** Vehicles that are simulated */
 export type Vehicle = Location & {
-  id: string;
-  name: string;
+  id: ID;
+  label: string;
   type: VehicleType;
   /** Markdown text describing the contents */
   desc?: string;
@@ -30,12 +32,16 @@ export type Vehicle = Location & {
   defaultIcon: boolean;
   visible: VehicleVisibility;
   state: VehicleState;
+  /** Start location when location (lat, lon) is not set */
+  poi?: ID;
+  /** List of POIs to visit */
+  pois?: ID[];
 };
 
 /** Locations that can be used as starting point or destination */
 export type PointOfInterest = Location & {
-  id: string;
-  name: string;
+  id: ID;
+  label: string;
   type: PoiType;
   /** Markdown text describing the contents */
   desc?: string;
@@ -46,6 +52,7 @@ export type PointOfInterest = Location & {
 };
 
 export type Settings = {
+  version: number;
   mapUrl?: string;
   appName?: string;
   vehicles: Vehicle[];

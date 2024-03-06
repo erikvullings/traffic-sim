@@ -23,3 +23,8 @@ npx create-mithrilts-app
 pnpm i
 npm start
 ```
+
+## TODO
+
+- Save the settings to the server
+- When clicking on the map, add a point of interest.

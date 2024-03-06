@@ -1,7 +1,7 @@
 import m from 'mithril';
 import { Pages } from '../models';
 import { MeiosisComponent } from '../services';
-import { MapComponent } from './map';
+import { MapComponent, MapRoutingComponent } from './map';
 
 export const HomePage: MeiosisComponent = () => {
   return {
@@ -11,7 +11,14 @@ export const HomePage: MeiosisComponent = () => {
       },
     }) => setPage(Pages.HOME),
     view: ({ attrs: { state, actions } }) => {
-      return [m('#home-page.home', m(MapComponent, { state, actions }))];
+      const { role } = state;
+      return [
+        m(
+          '#home-page.home',
+          m(MapComponent, { state, actions }),
+          role !== 'user' && m(MapRoutingComponent, { state, actions })
+        ),
+      ];
     },
   };
 };
