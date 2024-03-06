@@ -7,17 +7,19 @@ export const MapRoutingComponent: MeiosisComponent = () => {
   const updateVehicle = async (
     curVehicle: Vehicle,
     settings: Settings,
-    saveSettings: (settings: Settings) => Promise<void>
+    saveSettings: (settings: Settings) => Promise<void>,
+    getRoute: (v: Vehicle) => Promise<void>
   ) => {
     settings.vehicles = settings.vehicles.map((v) => (v.id === curVehicle.id ? curVehicle : v));
     await saveSettings(settings);
+    await getRoute(curVehicle);
   };
 
   return {
     view: ({
       attrs: {
         state: { curVehicleId, settings },
-        actions: { update, saveSettings },
+        actions: { update, saveSettings, getRoute },
       },
     }) => {
       const { pois = [], vehicles = [] } = settings;
@@ -63,7 +65,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                   className: 'right p0',
                   onclick: async () => {
                     curVehicle.visible = curVehicle.visible === 'hidden' ? 'visible' : 'hidden';
-                    await updateVehicle(curVehicle, settings, saveSettings);
+                    await updateVehicle(curVehicle, settings, saveSettings, getRoute);
                   },
                 }),
                 m(FlatButton, {
@@ -71,7 +73,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                   className: 'right p0',
                   onclick: async () => {
                     curVehicle.state = curVehicle.state === 'moving' ? 'paused' : 'moving';
-                    await updateVehicle(curVehicle, settings, saveSettings);
+                    await updateVehicle(curVehicle, settings, saveSettings, getRoute);
                   },
                 }),
               ]),
@@ -85,7 +87,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                 options: pois,
                 onchange: async (v) => {
                   curVehicle.pois![i] = v[0];
-                  await updateVehicle(curVehicle, settings, saveSettings);
+                  await updateVehicle(curVehicle, settings, saveSettings, getRoute);
                 },
               } as ISelectOptions<ID>),
               i === curVehicle.pois!.length - 1
@@ -96,7 +98,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                     className: 'col s2 mt18',
                     onclick: async () => {
                       curVehicle.pois = curVehicle.pois!.filter((_, idx) => idx !== i);
-                      await updateVehicle(curVehicle, settings, saveSettings);
+                      await updateVehicle(curVehicle, settings, saveSettings, getRoute);
                     },
                   }),
             ]),

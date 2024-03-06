@@ -78,6 +78,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@iwpnd/valhalla-ts':
+        specifier: ^1.0.3
+        version: 1.0.3
       dotenv:
         specifier: 16.4.5
         version: 16.4.5
@@ -106,6 +109,11 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: true
 
+  /@fastify/busboy@2.1.1:
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
+    dev: false
+
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
@@ -117,6 +125,21 @@ packages:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: /wrap-ansi@7.0.0
     dev: true
+
+  /@iwpnd/rip-ts@1.0.3:
+    resolution: {integrity: sha512-SwpiOJOVqHSRWUdlvVGPcMc6W7kbBoD0utGHtu6ZNr9Q3Tknh9tLlSVbgDgHWQu4aVm1xwszGH3+SIWtYO0Cng==}
+    engines: {node: '>=20.x', yarn: ^1.22.x}
+    dependencies:
+      undici: 6.6.2
+    dev: false
+
+  /@iwpnd/valhalla-ts@1.0.3:
+    resolution: {integrity: sha512-yFpfNLFH44NSayzjSmVUpAd1NpGd1a4n1+kBO0Ud3P7MAbtYcF1a1H2TLWqOGSHSsYmUWsYLsEwxjCMCWH75iQ==}
+    engines: {node: '>=20.x', yarn: ^1.22.x}
+    dependencies:
+      '@iwpnd/rip-ts': 1.0.3
+      '@types/geojson': 7946.0.14
+    dev: false
 
   /@jridgewell/gen-mapping@0.3.4:
     resolution: {integrity: sha512-Oud2QPM5dHviZNn4y/WhhYKSXksv+1xLEIsNrAbGcFzUN3ubqWRFT5gwPchNc5NuzILOU4tPBDTZ4VwhL8Y7cw==}
@@ -2919,6 +2942,13 @@ packages:
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
     dev: true
+
+  /undici@6.6.2:
+    resolution: {integrity: sha512-vSqvUE5skSxQJ5sztTZ/CdeJb1Wq0Hf44hlYMciqHghvz+K88U0l7D6u1VsndoFgskDcnU+nG3gYmMzJVzd9Qg==}
+    engines: {node: '>=18.0'}
+    dependencies:
+      '@fastify/busboy': 2.1.1
+    dev: false
 
   /union-value@1.0.1:
     resolution: {integrity: sha512-tJfXmxMeWYnczCVs7XAEvIV7ieppALdyepWMkHkwciRpZraG/xwT+s2JN8+pr1+8jCRf80FFzvr+MpQeeoF4Xg==}

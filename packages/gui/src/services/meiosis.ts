@@ -2,7 +2,7 @@ import { meiosisSetup } from 'meiosis-setup';
 import { MeiosisCell } from 'meiosis-setup/types';
 import m, { FactoryComponent } from 'mithril';
 import { routingSvc } from '.';
-import { ID, LayerStyle, Pages, Settings } from '../models';
+import { ID, LayerStyle, Pages, Settings, Vehicle } from '../models';
 import { User, UserRole } from './login-service';
 import { scrollToTop } from '../utils';
 
@@ -11,7 +11,9 @@ const USER_ROLE = 'TS_USER_ROLE';
 const ZOOM_LEVEL = 'TS_ZOOM_LEVEL';
 const LON_LAT = 'TS_LON_LAT';
 export const APP_TITLE = 'Traffic Simulator';
-const API_SETTINGS = `${process.env.SERVER}/api/settings`;
+const API = `${process.env.SERVER}/api`;
+const API_SETTINGS = `${API}/settings`;
+const API_ROUTE = `${API}/route`;
 
 export interface State {
   page: Pages;
@@ -44,6 +46,8 @@ export interface Actions {
   getZoomLevel: () => number;
   setLonLat: (lonlat: [lon: number, lat: number]) => void;
   getLonLat: () => [lon: number, lat: number];
+
+  getRoute: (v: Vehicle) => Promise<void>;
 
   update: (p: Partial<State>) => void;
   login: () => void;
@@ -107,6 +111,11 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
     localStorage.setItem(LON_LAT, JSON.stringify(lonlat));
   },
   getLonLat: () => JSON.parse(localStorage.getItem(LON_LAT) || '[5, 51]') as [lon: number, lat: number],
+
+  getRoute: async (v) => {
+    const response = await m.request<{}>(API_ROUTE, { method: 'POST', body: v });
+    console.log(response);
+  },
 
   update: (p) => update(p),
   login: () => {},
