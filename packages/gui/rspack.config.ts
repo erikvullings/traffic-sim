@@ -14,11 +14,11 @@ config();
 const devMode = (process.env as any).NODE_ENV === 'development';
 const isProduction = !devMode;
 const outputPath = resolve(__dirname, isProduction ? '../server/public' : 'dist');
-const SERVER = process.env.SERVER;
-const publicPath = isProduction ? 'https://github.io/A traffic simulator that allows you to plan traffic and which simulates its progress in time./traffic simulator' : '';
+const SERVER = process.env.SERVER || 'http://localhost:1234';
+const publicPath = isProduction ? '/' : '/';
 const APP_TITLE = 'Traffic Simulator';
 const APP_DESC = 'A traffic simulator that allows you to plan traffic and which simulates its progress in time.';
-const APP_PORT = 3423;
+const APP_PORT = +(process.env.PORT || 3423);
 
 console.log(
   `Running in ${
@@ -36,7 +36,7 @@ const configuration: Configuration = {
   },
   plugins: [
     new DefinePlugin({
-      'process.env.SERVER': isProduction ? `'${publicPath}'` : "'http://localhost:4545'",
+      'process.env.SERVER': `'${SERVER}'`,
     }),
     new HtmlRspackPlugin({
       title: APP_TITLE,

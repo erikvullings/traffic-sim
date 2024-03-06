@@ -5,13 +5,13 @@ import { routingSvc } from '.';
 import { ID, LayerStyle, Pages, Settings } from '../models';
 import { User, UserRole } from './login-service';
 import { scrollToTop } from '../utils';
-import { ldb } from '../utils/local-ldb';
 
 // const settingsSvc = restServiceFactory<Settings>('settings');
 const USER_ROLE = 'TS_USER_ROLE';
 const ZOOM_LEVEL = 'TS_ZOOM_LEVEL';
 const LON_LAT = 'TS_LON_LAT';
 export const APP_TITLE = 'Traffic Simulator';
+const API_SETTINGS = `${process.env.SERVER}/api/settings`;
 
 export interface State {
   page: Pages;
@@ -81,7 +81,10 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
     if (typeof settings.version === 'undefined') settings.version = 0;
     settings.version++;
     // await settingsSvc.save(settings);
-    await ldb.set('TRAFFIC_SIM_SETTINGS', JSON.stringify(settings));
+    await m.request(API_SETTINGS, {
+      method: 'POST',
+      body: settings,
+    });
     update({
       settings: () => settings,
     });
@@ -128,12 +131,11 @@ cells.map(() => {
 
 const loadData = async () => {
   const role = (localStorage.getItem(USER_ROLE) || 'user') as UserRole;
-  const settingsStr = await ldb.get('TRAFFIC_SIM_SETTINGS');
-  const settings = (settingsStr ? JSON.parse(settingsStr) : {}) as Settings;
+  const settings = await m.request<Settings>(API_SETTINGS);
 
   cells().update({
     role,
-    settings: () => settings,
+    settings: () => settings || {},
   });
 };
 loadData();
