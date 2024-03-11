@@ -118,16 +118,24 @@ export const timeManeuver = (manoevre: Point[], duration: Second): Millisecond[]
 export const convertAndTimeTrip = (
   trip: Trip<LegWithManeuvers>
 ): { coordinates: Point[]; durations: Second[] } | undefined => {
-  const leg = trip.legs.shift();
-  if (!leg) return;
-  const { maneuvers = [], shape } = leg;
-  const coordinates = decodePolyline(shape);
-  const durations = maneuvers.reduce((acc, maneuver) => {
-    const { begin_shape_index, end_shape_index, length, time } = maneuver;
-    if (time === 0 || length === 0 || begin_shape_index === end_shape_index) return acc;
-    const segment = coordinates.slice(begin_shape_index, end_shape_index + 1);
-    const durations = timeManeuver(segment, time);
-    return [...acc, ...durations];
-  }, [] as Second[]);
-  return { coordinates, durations };
+  if (!trip || !trip.legs) return { coordinates: [], durations: [] };
+
+  return trip.legs.reduce(
+    (acc, leg) => {
+      const { maneuvers = [], shape } = leg;
+      const coordinates = decodePolyline(shape);
+      const durations = maneuvers.reduce((acc, maneuver) => {
+        const { begin_shape_index, end_shape_index, length, time } = maneuver;
+        if (time === 0 || length === 0 || begin_shape_index === end_shape_index) return acc;
+        const segment = coordinates.slice(begin_shape_index, end_shape_index + 1);
+        const durations = timeManeuver(segment, time);
+        return [...acc, ...durations];
+      }, [] as Second[]);
+      return {
+        coordinates: [...acc.coordinates, ...coordinates],
+        durations: [...acc.durations, ...durations],
+      };
+    },
+    { coordinates: [], durations: [] } as { coordinates: Point[]; durations: Second[] }
+  );
 };
