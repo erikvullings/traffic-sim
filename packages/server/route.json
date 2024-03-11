@@ -1,0 +1,295 @@
+{
+  "locations": [
+    {
+      "type": "break",
+      "lat": 52.109656,
+      "lon": 4.327387,
+      "original_index": 0
+    },
+    {
+      "type": "break",
+      "lat": 52.082402,
+      "lon": 4.325796,
+      "original_index": 1
+    }
+  ],
+  "legs": [
+    {
+      "maneuvers": [
+        {
+          "type": 1,
+          "instruction": "Drive west.",
+          "verbal_succinct_transition_instruction": "Drive west. Then Turn right onto Oude Waalsdorperweg.",
+          "verbal_pre_transition_instruction": "Drive west. Then Turn right onto Oude Waalsdorperweg.",
+          "verbal_post_transition_instruction": "Continue for 70 meters.",
+          "time": 9.601,
+          "length": 0.066,
+          "cost": 11.011,
+          "begin_shape_index": 0,
+          "end_shape_index": 3,
+          "verbal_multi_cue": true,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 10,
+          "instruction": "Turn right onto Oude Waalsdorperweg.",
+          "verbal_transition_alert_instruction": "Turn right onto Oude Waalsdorperweg.",
+          "verbal_succinct_transition_instruction": "Turn right.",
+          "verbal_pre_transition_instruction": "Turn right onto Oude Waalsdorperweg.",
+          "verbal_post_transition_instruction": "Continue for 300 meters.",
+          "street_names": [
+            "Oude Waalsdorperweg"
+          ],
+          "time": 58.963,
+          "length": 0.3,
+          "cost": 70.755,
+          "begin_shape_index": 3,
+          "end_shape_index": 12,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 26,
+          "instruction": "Enter the roundabout and take the 2nd exit onto Oude Waalsdorperweg.",
+          "verbal_transition_alert_instruction": "Enter the roundabout and take the 2nd exit onto Oude Waalsdorperweg.",
+          "verbal_succinct_transition_instruction": "Enter the roundabout and take the 2nd exit.",
+          "verbal_pre_transition_instruction": "Enter the roundabout and take the 2nd exit onto Oude Waalsdorperweg.",
+          "time": 8.301,
+          "length": 0.032,
+          "cost": 13.459,
+          "begin_shape_index": 12,
+          "end_shape_index": 23,
+          "roundabout_exit_count": 2,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 27,
+          "instruction": "Exit the roundabout onto Oude Waalsdorperweg.",
+          "verbal_succinct_transition_instruction": "Exit the roundabout.",
+          "verbal_pre_transition_instruction": "Exit the roundabout onto Oude Waalsdorperweg.",
+          "verbal_post_transition_instruction": "Continue for 100 meters.",
+          "street_names": [
+            "Oude Waalsdorperweg"
+          ],
+          "time": 12.519,
+          "length": 0.14,
+          "cost": 57.703,
+          "begin_shape_index": 23,
+          "end_shape_index": 37,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 26,
+          "instruction": "Enter the roundabout and take the 2nd exit onto Oude Waalsdorperweg.",
+          "verbal_transition_alert_instruction": "Enter the roundabout and take the 2nd exit onto Oude Waalsdorperweg.",
+          "verbal_succinct_transition_instruction": "Enter the roundabout and take the 2nd exit.",
+          "verbal_pre_transition_instruction": "Enter the roundabout and take the 2nd exit onto Oude Waalsdorperweg.",
+          "time": 1.908,
+          "length": 0.02,
+          "cost": 9.139,
+          "begin_shape_index": 37,
+          "end_shape_index": 43,
+          "roundabout_exit_count": 2,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 27,
+          "instruction": "Exit the roundabout onto Oude Waalsdorperweg.",
+          "verbal_succinct_transition_instruction": "Exit the roundabout.",
+          "verbal_pre_transition_instruction": "Exit the roundabout onto Oude Waalsdorperweg.",
+          "verbal_post_transition_instruction": "Continue for 500 meters.",
+          "street_names": [
+            "Oude Waalsdorperweg"
+          ],
+          "time": 39.342,
+          "length": 0.537,
+          "cost": 72.022,
+          "begin_shape_index": 43,
+          "end_shape_index": 65,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 15,
+          "instruction": "Turn left onto Van Alkemadelaan.",
+          "verbal_transition_alert_instruction": "Turn left onto Van Alkemadelaan.",
+          "verbal_succinct_transition_instruction": "Turn left.",
+          "verbal_pre_transition_instruction": "Turn left onto Van Alkemadelaan.",
+          "verbal_post_transition_instruction": "Continue for 1.5 kilometers.",
+          "street_names": [
+            "Van Alkemadelaan"
+          ],
+          "time": 116.053,
+          "length": 1.587,
+          "cost": 211.906,
+          "begin_shape_index": 65,
+          "end_shape_index": 114,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 10,
+          "instruction": "Turn right toward S101/Centrum/Rotterdam (A4).",
+          "verbal_transition_alert_instruction": "Turn right toward S101.",
+          "verbal_succinct_transition_instruction": "Turn right toward S101, Centrum. Then Keep left to stay on Benoordenhoutseweg.",
+          "verbal_pre_transition_instruction": "Turn right toward S101, Centrum. Then Keep left to stay on Benoordenhoutseweg.",
+          "verbal_post_transition_instruction": "Continue for 60 meters.",
+          "street_names": [
+            "Benoordenhoutseweg",
+            "S101"
+          ],
+          "time": 8.755,
+          "length": 0.061,
+          "cost": 31.941,
+          "begin_shape_index": 114,
+          "end_shape_index": 118,
+          "sign": {},
+          "verbal_multi_cue": true,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 24,
+          "instruction": "Keep left to stay on Benoordenhoutseweg/S101.",
+          "verbal_transition_alert_instruction": "Keep left to stay on Benoordenhoutseweg.",
+          "verbal_pre_transition_instruction": "Keep left to stay on Benoordenhoutseweg, S101.",
+          "verbal_post_transition_instruction": "Continue for 700 meters.",
+          "street_names": [
+            "Benoordenhoutseweg",
+            "S101"
+          ],
+          "time": 51.911,
+          "length": 0.72,
+          "cost": 59.615,
+          "begin_shape_index": 118,
+          "end_shape_index": 128,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 16,
+          "instruction": "Bear left toward A12/Rotterdam/Utrecht.",
+          "verbal_transition_alert_instruction": "Bear left toward A12.",
+          "verbal_succinct_transition_instruction": "Bear left toward A12, Rotterdam.",
+          "verbal_pre_transition_instruction": "Bear left toward A12, Rotterdam.",
+          "verbal_post_transition_instruction": "Continue for 200 meters.",
+          "street_names": [
+            "Boslaan",
+            "A12"
+          ],
+          "time": 14.938,
+          "length": 0.205,
+          "cost": 40.889,
+          "begin_shape_index": 128,
+          "end_shape_index": 138,
+          "sign": {},
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 23,
+          "instruction": "Keep right to stay on Boslaan toward Centraal Station.",
+          "verbal_transition_alert_instruction": "Keep right to stay on Boslaan.",
+          "verbal_pre_transition_instruction": "Keep right to stay on Boslaan toward Centraal Station.",
+          "verbal_post_transition_instruction": "Continue for 400 meters.",
+          "street_names": [
+            "Boslaan"
+          ],
+          "time": 30.117,
+          "length": 0.417,
+          "cost": 82.878,
+          "begin_shape_index": 138,
+          "end_shape_index": 153,
+          "sign": {},
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 10,
+          "instruction": "Turn right onto Bezuidenhoutseweg.",
+          "verbal_transition_alert_instruction": "Turn right onto Bezuidenhoutseweg.",
+          "verbal_succinct_transition_instruction": "Turn right. Then Turn left onto Prinses Irenestraat.",
+          "verbal_pre_transition_instruction": "Turn right onto Bezuidenhoutseweg. Then Turn left onto Prinses Irenestraat.",
+          "verbal_post_transition_instruction": "Continue for 100 meters.",
+          "street_names": [
+            "Bezuidenhoutseweg"
+          ],
+          "time": 12.933,
+          "length": 0.097,
+          "cost": 48.206,
+          "begin_shape_index": 153,
+          "end_shape_index": 158,
+          "verbal_multi_cue": true,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 15,
+          "instruction": "Turn left onto Prinses Irenestraat.",
+          "verbal_transition_alert_instruction": "Turn left onto Prinses Irenestraat.",
+          "verbal_succinct_transition_instruction": "Turn left.",
+          "verbal_pre_transition_instruction": "Turn left onto Prinses Irenestraat.",
+          "verbal_post_transition_instruction": "Continue for 100 meters.",
+          "street_names": [
+            "Prinses Irenestraat"
+          ],
+          "time": 18.479,
+          "length": 0.111,
+          "cost": 177.385,
+          "begin_shape_index": 158,
+          "end_shape_index": 165,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        },
+        {
+          "type": 4,
+          "instruction": "You have arrived at your destination.",
+          "verbal_transition_alert_instruction": "You will arrive at your destination.",
+          "verbal_pre_transition_instruction": "You have arrived at your destination.",
+          "time": 0,
+          "length": 0,
+          "cost": 0,
+          "begin_shape_index": 165,
+          "end_shape_index": 165,
+          "travel_mode": "drive",
+          "travel_type": "car"
+        }
+      ],
+      "summary": {
+        "has_time_restrictions": false,
+        "has_toll": false,
+        "has_highway": false,
+        "has_ferry": false,
+        "min_lat": 52.082417,
+        "min_lon": 4.317166,
+        "max_lat": 52.109667,
+        "max_lon": 4.330254,
+        "time": 383.826,
+        "length": 4.295,
+        "cost": 886.916
+      },
+      "shape": "guokbBi|bgGpBzOrTgLdBk@zNteArA~RtJfs@jGrc@`@lJO`q@H|ELdEtAfGe@r@YdAMlA@pAPjA`@fAl@n@r@Tv@Gp@c@f@{@rAvA|AfAdCd@pCp@~A`@jAPxBZtDHjDv@pAc@tDsBpAy@bBuAdV_Wl@|@r@l@v@Zz@Hz@Iv@YxBfGpIpSxJlQbHrR|KpZ`Kt\\pRxp@ZfArSjs@zKpVrMdTvItTrJpRl@hAf@t@tCdE~CnG|KhSfC`FlA`CzBxE~BhFzCeDnBqBzAiBj_@_d@vHwI`AmAtM{QnCwDnCgDvfAgrApGuHvOcSnI_KhMuOn@y@bD}DvA_BxC}D`QiSpBgCzFaHv^kd@zb@ug@bKmM`^mc@jlAkxADGpv@q~@bDmDlCgDzc@ej@~DqEl@s@j@q@~DuElEcFl@q@pZa]lf@gj@lKqLhQ_SbDsDbSwTjB}AfHaE|YkS|DqCn@c@jCiBfCxI^jAlGjTzCdKhI`VnShk@`Q`h@~Tdv@vIhXfMf]frA`kDz\\x`ArVlq@xG`RpIvBdBEzAKjAc@pAcArC_CnYeW`DsCfUoSpTuW`L}HjF{H~MaWfLeXn^u}@hGkOzJ{RfGmL`GgJjJoLhAwAtGqHvVwZnBwBvCcE~AdFl@jBnF|P~EvPlIb[zEk@hCiBxBkCbCoCpJ{F`NsIhKeF"
+    }
+  ],
+  "summary": {
+    "has_time_restrictions": false,
+    "has_toll": false,
+    "has_highway": false,
+    "has_ferry": false,
+    "min_lat": 52.082417,
+    "min_lon": 4.317166,
+    "max_lat": 52.109667,
+    "max_lon": 4.330254,
+    "time": 383.826,
+    "length": 4.295,
+    "cost": 886.916
+  },
+  "status_message": "Found route between points",
+  "status": 0,
+  "units": "kilometers",
+  "language": "en-US"
+}

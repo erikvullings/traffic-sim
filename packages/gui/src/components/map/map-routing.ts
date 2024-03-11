@@ -23,27 +23,8 @@ export const MapRoutingComponent: MeiosisComponent = () => {
       },
     }) => {
       const { pois = [], vehicles = [] } = settings;
-      const locations: Location[] = [{} as Location, {} as Location];
       const curVehicle = curVehicleId && vehicles.filter((v) => v.id === curVehicleId).shift();
       if (curVehicle && !(curVehicle.pois instanceof Array)) curVehicle.pois = [''];
-
-      const handleDelete = (index: number) => {
-        locations.splice(index, 1);
-      };
-
-      const handleSubmit = (profile: string) => {
-        // Assuming this function retrieves the profile and locations
-        // from the UI and passes them to the provided callback
-        // callback && callback(profile, locations);
-      };
-
-      const handleDragStart = (e: DragEvent) => {
-        // Handle drag start event
-      };
-
-      const handleDragEnd = (e: DragEvent) => {
-        // Handle drag end event
-      };
 
       return m('.map-routing', [
         m('.row', [

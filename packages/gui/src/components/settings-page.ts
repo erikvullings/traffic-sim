@@ -3,6 +3,7 @@ import { Pages, PoiType, PointOfInterest, Settings, Vehicle, VehicleType } from 
 import { MeiosisComponent, t } from '../services';
 import { FormAttributes, LayoutForm, UIForm } from 'mithril-ui-form';
 import { UploadDownload } from './ui/upload-download';
+import { SimControl } from './map/sim-control';
 
 export const SettingsPage: MeiosisComponent = () => {
   const defaultIcons = new Map<VehicleType | PoiType, string>([
@@ -95,8 +96,8 @@ export const SettingsPage: MeiosisComponent = () => {
   const form = [
     { id: 'appName', label: t('APP_NAME'), type: 'text', className: 'col s6' },
     { id: 'mapUrl', label: t('MAP_URL'), type: 'url', className: 'col s6' },
-    { id: 'pois', label: t('POIS'), type: poiForm, repeat: true, pageSize: 10 },
-    { id: 'vehicles', label: t('VEHICLES'), type: vehicleForm, repeat: true, pageSize: 10 },
+    { id: 'pois', label: t('POIS'), type: poiForm, repeat: true, pageSize: 1 },
+    { id: 'vehicles', label: t('VEHICLES'), type: vehicleForm, repeat: true, pageSize: 1 },
   ] as UIForm<Settings>;
 
   return {
@@ -107,16 +108,14 @@ export const SettingsPage: MeiosisComponent = () => {
     }) => {
       setPage(Pages.SETTINGS);
     },
-    view: ({
-      attrs: {
-        state: { settings },
-        actions: { saveSettings },
-      },
-    }) => {
+    view: ({ attrs: { state, actions } }) => {
+      const { settings } = state;
+      const { saveSettings } = actions;
+
       return m(
         '.container',
         m('#settings-page.row.settings.page', [
-          m('.col.s12.right', m(UploadDownload, { settings, saveSettings })),
+          m('.col.s12', [m(UploadDownload, { settings, saveSettings }), m(SimControl, { state, actions })]),
           m('h5.col.s12', t('SETTINGS', 'TITLE')),
           m(LayoutForm, {
             form,

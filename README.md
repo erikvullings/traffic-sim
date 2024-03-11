@@ -8,10 +8,12 @@ The application is a mono-repository, developed in TypeScript. It typically cons
 
 - root
   - GUI: The client part of the application. 
-  - Server: Not provided
+  - Server: Hono-based service
   - Shared: Shared type and interface definitions
 
 ## Development
+
+In all `packages` folder, copy `example.env` to `.env`. Optionally, update your settings, e.g. the PORT that you want to use for the sim server and for the web developer server. And, of course, the location of the Valhalla service.
 
 ```bash
 pnpm i

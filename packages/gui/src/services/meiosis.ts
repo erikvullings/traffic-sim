@@ -1,19 +1,31 @@
 import { meiosisSetup } from 'meiosis-setup';
-import { MeiosisCell } from 'meiosis-setup/types';
+import { MeiosisCell, MeiosisComponent as MComponent } from 'meiosis-setup/types';
 import m, { FactoryComponent } from 'mithril';
 import { routingSvc } from '.';
-import { ID, LayerStyle, Pages, Settings, Vehicle } from '../models';
+import {
+  AddVehicleToSim,
+  BaseRouteRequest,
+  ID,
+  LayerStyle,
+  Pages,
+  Point,
+  Position,
+  Settings,
+  SimState,
+  Vehicle,
+} from '../models';
 import { User, UserRole } from './login-service';
 import { scrollToTop } from '../utils';
+import { FeatureCollection, LineString } from 'geojson';
 
 // const settingsSvc = restServiceFactory<Settings>('settings');
 const USER_ROLE = 'TS_USER_ROLE';
 const ZOOM_LEVEL = 'TS_ZOOM_LEVEL';
 const LON_LAT = 'TS_LON_LAT';
 export const APP_TITLE = 'Traffic Simulator';
-const API = `${process.env.SERVER}/api`;
+export const API = `${process.env.SERVER}/api`;
 const API_SETTINGS = `${API}/settings`;
-const API_ROUTE = `${API}/route`;
+const getApiRoute = (id: string) => `${API}/route/${id}`;
 
 export interface State {
   page: Pages;
@@ -27,6 +39,8 @@ export interface State {
   mapStyle: string;
   /** Selected vehicle */
   curVehicleId?: ID;
+  simState: SimState;
+  routes?: FeatureCollection<LineString, { durations: number[] }>;
 }
 
 export interface Actions {
@@ -47,7 +61,7 @@ export interface Actions {
   setLonLat: (lonlat: [lon: number, lat: number]) => void;
   getLonLat: () => [lon: number, lat: number];
 
-  getRoute: (v: Vehicle) => Promise<void>;
+  getRoute: (vehicle: Vehicle) => Promise<void>;
 
   update: (p: Partial<State>) => void;
   login: () => void;
@@ -113,8 +127,44 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
   getLonLat: () => JSON.parse(localStorage.getItem(LON_LAT) || '[5, 51]') as [lon: number, lat: number],
 
   getRoute: async (v) => {
-    const response = await m.request<{}>(API_ROUTE, { method: 'POST', body: v });
+    const {
+      settings: { pois = [] },
+    } = states();
+    const { lat, lon, poi, pois: poiIds = [] } = v;
+    const start = pois.find((p) => p.id === poi);
+    const vias = pois
+      .filter((p) => poiIds.includes(p.id))
+      .sort((a, b) => (poiIds.indexOf(a.id) > poiIds.indexOf(b.id) ? 1 : -1))
+      .map((p) => ({ lat: p.lat, lon: p.lon }));
+    const curLocation: Position = { lat: lat || start?.lat || 0, lon: lon || start?.lon || 0 };
+    const body: BaseRouteRequest = {
+      costing: 'auto',
+      locations: [curLocation, ...vias],
+    };
+    const response = await m.request<FeatureCollection<LineString, { id: string; durations: number[] }>>(
+      getApiRoute(v.id),
+      { method: 'POST', body }
+    );
     console.log(response);
+    if (!response || response.features.length === 0) return;
+    const feature = response.features[0];
+    if (v.state === 'moving') {
+      const body: AddVehicleToSim = {
+        id: v.id,
+        path: feature.geometry.coordinates as Point[],
+        durations: feature.properties.durations,
+      };
+      await m.request(`${API}/sim/vehicle`, { method: 'POST', body });
+    }
+    update({
+      routes: (r) => {
+        if (r) {
+          r.features = [...r.features.filter((f) => f.id !== feature.id), feature];
+          return r;
+        }
+        return response;
+      },
+    });
   },
 
   update: (p) => update(p),
@@ -126,11 +176,31 @@ const app = {
     page: Pages.HOME,
     loggedInUser: undefined,
     role: 'user',
+    simState: 'unknown',
     settings: {
       version: 0,
     } as Settings,
   } as State,
-};
+  services: [
+    {
+      onchange: ({ simState }) => simState === 'started' || simState === 'unknown',
+      run: ({ update }) => {
+        const updateSimState = async () => {
+          const result = await m.request<{ running: boolean; vehicles: any[] }>(`${API}/sim/state`);
+          if (!result) return;
+          const { running, vehicles = [] } = result;
+          const newSimState: SimState = running ? 'started' : vehicles.length === 0 ? 'reset' : 'paused';
+          console.log(`Sim state: ${newSimState}`);
+          console.log(vehicles);
+          setTimeout(updateSimState, newSimState === 'reset' ? 10000 : 5000);
+          update({ simState: newSimState });
+        };
+        setTimeout(updateSimState, 0);
+      },
+    },
+  ],
+} as MComponent<State>;
+
 export const cells = meiosisSetup<State>({ app });
 
 cells.map(() => {
