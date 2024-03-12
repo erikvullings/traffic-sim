@@ -1,8 +1,13 @@
 import m from 'mithril';
-import { GeolocateControl, Map as MaplibreMap, NavigationControl, ScaleControl } from 'maplibre-gl';
-// @ts-ignore
+import { GeolocateControl, Map as MaplibreMap, NavigationControl, Popup, ScaleControl } from 'maplibre-gl';
+import { Feature, Point as GeoJSONPoint } from 'geojson';
+import { GeoJSONSource } from 'maplibre-gl';
+import { simpleHash } from '.';
 import { MeiosisComponent } from '../../services/meiosis';
 import { loadMissingImages, setLonLat, setZoomLevel } from './map-utils';
+import { PointOfInterest, Vehicle } from '../../models';
+import { render } from 'mithril-ui-form';
+import { t } from '../../services';
 // https://github.com/korywka/mapbox-controls/tree/master/packages/tooltip
 // import TooltipControl from '@mapbox-controls/tooltip';
 
@@ -19,18 +24,142 @@ export const MapComponent: MeiosisComponent = () => {
   return {
     view: ({
       attrs: {
-        state: {
-          settings: { version },
-        },
+        state: { curVehicleId, sims, map, settings, route, routes },
       },
     }) => {
-      console.log(`VERSION: ${version}`);
-      return m('#mapboxMap', { key: `settings${version}` });
+      if (map) {
+        const routeSource = map.getSource('route') as GeoJSONSource;
+        if (route) {
+          // console.log('ROUTE');
+          if (routeSource) {
+            routeSource.setData(route);
+          } else {
+            map.addSource('route', { type: 'geojson', data: route });
+            map.addLayer({
+              id: 'route',
+              type: 'line',
+              source: 'route',
+              layout: {
+                'line-cap': 'round',
+                'line-join': 'round',
+              },
+              paint: {
+                'line-color': '#0000ff',
+                'line-width': 5,
+                'line-opacity': 0.8,
+              },
+            });
+          }
+        } else if (routeSource) {
+          map.removeLayer('route');
+          map.removeSource('route');
+        }
+
+        let curVehicleOnMap = false;
+        sims.forEach((vehicle) => {
+          const [id, _, lon, lat, eta] = vehicle;
+          if (id === curVehicleId) {
+            curVehicleOnMap = true;
+            const source = map.getSource(curVehicleId);
+            if (source) {
+              map.removeLayer(curVehicleId);
+              map.removeSource(curVehicleId);
+            }
+          }
+          const curVehicle = settings.vehicles.find((v) => v.id === id);
+          if (!curVehicle) return;
+          const { type, label, desc, state } = curVehicle;
+
+          const json = {
+            id,
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lon, lat],
+            },
+            properties: { id, type, label, desc, state, eta: new Date(eta) },
+          } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'eta'>>;
+          const pointSource = map.getSource(id) as GeoJSONSource;
+          if (pointSource) {
+            pointSource.setData(json);
+          } else {
+            map.addSource(id, { type: 'geojson', data: json });
+            map.addLayer({
+              id,
+              type: 'symbol',
+              source: id,
+              layout: {
+                'icon-image':
+                  curVehicle.defaultIcon || !curVehicle.icon ? curVehicle.type : `icon_${simpleHash(curVehicle.icon)}`,
+              },
+            });
+            map.on('click', id, (e) => {
+              if (!e.features || e.features.length < 1) return;
+              const { geometry, properties = {} } = e.features![0];
+              const { desc = '' } = properties;
+              const coordinates = (geometry as GeoJSONPoint).coordinates.slice() as [number, number];
+              const msg = eta === 0 ? t('ARRIVED') : `${t('ETA')}: ${new Date(eta).toLocaleTimeString()}`;
+              const description = msg + render(desc, true);
+              // Center the map on the coordinates of any clicked symbol from the 'symbols' layer.
+              map.flyTo({
+                center: coordinates,
+              });
+              new Popup().setLngLat(coordinates).setHTML(description).addTo(map);
+            });
+            // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
+            map.on('mouseenter', id, () => {
+              map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', id, () => {
+              map.getCanvas().style.cursor = '';
+            });
+          }
+        });
+
+        if (curVehicleId && !curVehicleOnMap) {
+          const curVehicle = settings.vehicles?.find((v) => v.id === curVehicleId);
+          const curVehicleSource = map.getSource(curVehicleId);
+          if (curVehicle && !curVehicleSource) {
+            const { id, poi, type, label, desc, state, visible, eta } = curVehicle;
+            const startPoint = settings.pois?.find((p) => p.id === poi) || ({} as PointOfInterest);
+            const { lon, lat } = startPoint;
+            const json = {
+              id,
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lon, lat],
+              },
+              properties: { id, type, label, desc, state, visible, eta },
+            } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'visible' | 'eta'>>;
+            if (!curVehicleSource) {
+              map.addSource(id, { type: 'geojson', data: json });
+              map.addLayer({
+                id,
+                type: 'symbol',
+                source: id,
+                layout: {
+                  'icon-image':
+                    curVehicle.defaultIcon || !curVehicle.icon
+                      ? curVehicle.type
+                      : `icon_${simpleHash(curVehicle.icon)}`,
+                },
+              });
+            }
+          }
+        }
+
+        if (routes && routes.features.length > 0) {
+        }
+      }
+      return m('#mapboxMap', { key: `settings${settings.version}` });
     },
     oncreate: ({
       attrs: {
         state: {
-          settings: { mapUrl },
+          settings: { mapUrl = 'http://localhost/maptiler/styles/basic-preview/style.json' },
         },
         actions,
       },
@@ -95,7 +224,8 @@ export const MapComponent: MeiosisComponent = () => {
           console.error(e);
           map.setStyle(brtStyle);
         });
-        console.log('ON MAP LOAD');
+
+        // console.log('ON MAP LOAD');
         // map.on('draw.create', ({ features }) => handleDrawEvent(map, features, actions));
         // map.on('draw.update', ({ features }) => handleDrawEvent(map, features, actions));
 
@@ -104,11 +234,11 @@ export const MapComponent: MeiosisComponent = () => {
 
         // actions.loadGeoJSON();
 
-        map.once('styledata', () => {
-          console.log('On styledata');
-          // updateSourcesAndLayers(state.sources || [], actions, map);
-          // updateSatellite(state, map);
-        });
+        // map.once('styledata', () => {
+        //   // console.log('On styledata');
+        //   // updateSourcesAndLayers(state.sources || [], actions, map);
+        //   // updateSatellite(state, map);
+        // });
 
         setMap(map);
         // setMap(map, draw);

@@ -8,7 +8,7 @@ import { Valhalla } from '@iwpnd/valhalla-ts/dist/valhalla';
 import { BaseRouteRequest, TurnByTurnRouteRequest } from '@iwpnd/valhalla-ts/dist/types/request';
 import { CostingModels, LegWithManeuvers } from '@iwpnd/valhalla-ts/dist/types';
 import { spawn } from 'bun';
-import { convertAndTimeTrip } from './utils';
+import { convertAndTimeTrip, padLeft } from './utils';
 import { EmitMsg, AddVehicleToSim as VehicleInfo } from './simulator';
 import { VehiclePos } from './discrete-event-sim';
 
@@ -38,14 +38,23 @@ if (existsSync(settingsFile)) {
 const simulator = spawn(['bun', './src/simulator.ts'], {
   stdout: 'inherit',
   ipc(message: EmitMsg, childProc) {
-    console.log('Message from simulator:', message);
+    // console.log('Message from simulator:', message);
     // childProc.send('Message from parent to simulator');
     const { type = 'unknown', data } = message;
     switch (type) {
       case 'state':
-        console.log('State msg received');
-        console.log(data);
         const vehicles = data as VehiclePos[];
+        console.log(
+          'State updated:\n' +
+            vehicles
+              .map(
+                ([id, paused, lon, lat, eta]) =>
+                  `${padLeft(id, 12)}: ${paused ? 'paused' : 'moving'} @ (${lon.toFixed(8)}, ${lat.toFixed(8)}), ETA: ${
+                    eta > 0 ? new Date(eta).toLocaleTimeString('nl-NL') : '-'
+                  }`
+              )
+              .join('\n')
+        );
         simState.vehicles = vehicles;
         break;
       case 'unknown':
@@ -74,11 +83,13 @@ app.post('/api/settings', async (c) => {
 app.post('/api/route/:id', async (c) => {
   const id = c.req.param('id');
   const r = await c.req.json<BaseRouteRequest & { costing: CostingModelsType }>();
-
+  // console.log(r);
   const trip = await valhalla.route<LegWithManeuvers>(r as TurnByTurnRouteRequest);
+  if (!trip) return c.json(undefined);
   writeFileSync(join(process.cwd(), 'route.json'), JSON.stringify(trip, null, 2));
   const result = convertAndTimeTrip(trip);
-  console.log(result);
+  const { length, time } = trip.summary;
+  // console.log(result);
 
   return result && result.durations.length > 0
     ? c.json({
@@ -92,6 +103,8 @@ app.post('/api/route/:id', async (c) => {
               coordinates: result.coordinates,
             },
             properties: {
+              length,
+              time,
               durations: result.durations,
             },
           },
@@ -126,7 +139,6 @@ app.get('/api/sim/state/reset', (c) => {
 // Vehicle interaction
 app.post('/api/sim/vehicle', async (c) => {
   const data = await c.req.json<VehicleInfo>();
-  console.log('🚀 ~ app.post ~ data:', data);
   simulator.send({ type: 'AddVehicle', data });
   return c.json(undefined);
 });

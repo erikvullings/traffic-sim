@@ -121,7 +121,7 @@ export const SettingsPage: MeiosisComponent = () => {
             form,
             obj: settings,
             onchange: () => {
-              console.log(settings);
+              // console.log(settings);
               const { vehicles = [], pois = [] } = settings;
               vehicles.forEach((v) => {
                 if (v.defaultIcon) {
@@ -131,7 +131,7 @@ export const SettingsPage: MeiosisComponent = () => {
                 }
               });
               pois.forEach((p) => {
-                console.log(p.icon);
+                // console.log(p.icon);
                 if (p.defaultIcon) {
                   const icon = defaultIcons.get(p.type);
                   // console.log(icon);

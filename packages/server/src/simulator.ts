@@ -30,19 +30,21 @@ process.on('message', (message: string | { type: string; data?: Record<string, a
     case 'start': {
       if (simHandle) break;
       sim.init(Date.now());
-      simHandle = setInterval(() => {
+      const updateSim = () => {
         const result = sim.runUntil(Date.now());
         send({ type: 'state', data: result });
-      }, 5000);
+        simHandle = setTimeout(updateSim, 5000);
+      };
+      setTimeout(updateSim, 0);
       break;
     }
     case 'pause': {
-      clearInterval(simHandle);
+      clearTimeout(simHandle);
       simHandle = undefined;
       break;
     }
     case 'reset': {
-      clearInterval(simHandle);
+      clearTimeout(simHandle);
       simHandle = undefined;
       sim.reset();
       break;

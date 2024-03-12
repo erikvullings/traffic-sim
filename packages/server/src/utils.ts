@@ -139,3 +139,19 @@ export const convertAndTimeTrip = (
     { coordinates: [], durations: [] } as { coordinates: Point[]; durations: Second[] }
   );
 };
+
+export const localTime = (t: number) => new Date(t).toLocaleTimeString();
+
+/**
+ * Pad left, default with a '0'
+ *
+ * @see http://stackoverflow.com/a/10073788/319711
+ * @param {(string | number)} n
+ * @param {number} width
+ * @param {string} [z=' ']
+ * @returns
+ */
+export const padLeft = (n: string | number, width = 2, z = ' ') => {
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+};

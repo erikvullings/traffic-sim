@@ -1,9 +1,7 @@
 import { PriorityQueue, Comparator } from './priority-queue';
+import { Millisecond, localTime } from './utils';
 
-export interface Position {
-  lat: number;
-  lon: number;
-}
+export type Position = [lon: number, lat: number];
 
 interface ExtVehicle {
   id: string;
@@ -12,7 +10,7 @@ interface ExtVehicle {
   /** Duration to traverse a path segment in msec */
   durations: number[];
   paused: boolean;
-  /** Current location in the path */
+  /** Current location in the path, initially at -1 */
   curPosIdx: number;
   /** Last update time in msec */
   lastUpdate: number;
@@ -26,7 +24,7 @@ export interface SimulationEvent {
 
 export type Vehicle = Omit<ExtVehicle, 'lastUpdate' | 'curPosIdx'>;
 
-export type VehiclePos = Position & Pick<Vehicle, 'id' | 'paused'>;
+export type VehiclePos = [id: string, paused: boolean, ...Position, eta: Millisecond];
 
 export class TrafficSimulator {
   private currentTime = 0;
@@ -49,35 +47,41 @@ export class TrafficSimulator {
       const duration = vehicle.durations[vehicle.curPosIdx];
       const progressRatio = availableTime / duration;
       if (progressRatio > 1) {
-        console.warn(`Progress ratio ${progressRatio} for vehicle ${JSON.stringify(vehicle)}.`);
+        console.warn(`Progress ratio ${progressRatio} for vehicle ${vehicle.id}.`);
         return curPos;
       }
-      const latDiff = nextPos.lat - curPos.lat;
-      const lonDiff = nextPos.lon - curPos.lon;
-      const lat = curPos.lat + latDiff * progressRatio;
-      const lon = curPos.lon + lonDiff * progressRatio;
-      return { lat, lon };
+      const latDiff = nextPos[1] - curPos[1];
+      const lonDiff = nextPos[0] - curPos[0];
+      const lat = curPos[1] + latDiff * progressRatio;
+      const lon = curPos[0] + lonDiff * progressRatio;
+      return [lon, lat];
     } else {
       return curPos;
     }
   }
 
+  private calculateETA(vehicle: ExtVehicle): Millisecond {
+    return vehicle.curPosIdx < vehicle.durations.length
+      ? vehicle.durations.slice(vehicle.curPosIdx).reduce((acc, cur) => acc + cur, this.currentTime)
+      : 0;
+  }
+
   private updateVehiclePosition(vehicle: ExtVehicle): void {
+    vehicle.lastUpdate = this.currentTime;
     if (vehicle.paused) return;
 
     const nextPosIdx = vehicle.curPosIdx + 1;
     if (nextPosIdx < vehicle.path.length) {
-      const duration = vehicle.durations[vehicle.curPosIdx];
+      const duration = vehicle.durations[nextPosIdx];
+      vehicle.curPosIdx = nextPosIdx;
       const event: SimulationEvent = {
         time: this.currentTime + duration,
         type: 'MOVE',
         vehicle,
       };
-      vehicle.curPosIdx = nextPosIdx;
-      vehicle.lastUpdate = this.currentTime;
-      // Schedule the next move event for the vehicle
       this.eventQueue.enqueue(event);
     } else {
+      console.log(`Vehicle ${vehicle.id} arrived at ${new Date(this.currentTime).toLocaleTimeString()}.`);
       vehicle.paused = true;
     }
   }
@@ -91,7 +95,15 @@ export class TrafficSimulator {
         vehicle.paused = true;
         break;
       case 'RESUME':
+        if (vehicle.curPosIdx > vehicle.path.length - 1) break;
         vehicle.paused = false;
+        const duration = vehicle.durations[vehicle.curPosIdx];
+        const event: SimulationEvent = {
+          time: this.currentTime + duration,
+          type: 'MOVE',
+          vehicle,
+        };
+        this.eventQueue.enqueue(event);
         break;
       default:
         console.error(`Unknown event type: ${type}`);
@@ -109,8 +121,13 @@ export class TrafficSimulator {
       this.currentTime = nextEvent.time;
       this.processEvent(nextEvent);
     }
-    console.log(`TIME: ${new Date(this.currentTime).toISOString()}\n${this.eventQueue.log()}`);
-    return this.vehicles.map((v) => ({ id: v.id, paused: v.paused, ...this.calculateCurPosition(v) }));
+    console.log(
+      `Run until ${localTime(time)}. Current time ${localTime(this.currentTime)}. Event queue times:\n${this.eventQueue
+        .map((e) => `${localTime(e.time)} - ${e.vehicle.id} - ${e.vehicle.curPosIdx}`)
+        .join('\n')}`
+    );
+    this.currentTime = time;
+    return this.vehicles.map((v) => [v.id, v.paused, ...this.calculateCurPosition(v), this.calculateETA(v)]);
   }
 
   public reset() {
@@ -119,7 +136,7 @@ export class TrafficSimulator {
   }
 
   public addVehicle(newVehicle: Vehicle): void {
-    const vehicle: ExtVehicle = { lastUpdate: this.currentTime, curPosIdx: 0, ...newVehicle };
+    const vehicle: ExtVehicle = { lastUpdate: this.currentTime, curPosIdx: -1, ...newVehicle };
     const idx = this.vehicles.findIndex((v) => v.id === newVehicle.id);
     if (idx >= 0) {
       this.vehicles[idx] = vehicle;
@@ -140,7 +157,7 @@ export class TrafficSimulator {
       const event: SimulationEvent = {
         time: this.currentTime,
         type: paused ? 'PAUSE' : 'RESUME',
-        vehicle: vehicle,
+        vehicle,
       };
       this.eventQueue.enqueue(event);
     }

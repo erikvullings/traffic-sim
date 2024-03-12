@@ -1,7 +1,7 @@
 /**
  * Costing Models used in routing
  */
-export declare enum CostingModels {
+export enum CostingModels {
   PEDESTRIAN = 'pedestrian',
   BICYCLE = 'bicycle',
   AUTO = 'auto',
@@ -14,6 +14,7 @@ export declare enum CostingModels {
   MULTIMODAL = 'multimodal',
 }
 
+export type CostingModelsType = `${CostingModels}`;
 export interface Position {
   /**
    * Latitude, duh
@@ -26,6 +27,6 @@ export interface Position {
 }
 
 export interface BaseRouteRequest {
-  costing: `${CostingModels.AUTO}`;
+  costing: CostingModelsType;
   locations: Position[];
 }

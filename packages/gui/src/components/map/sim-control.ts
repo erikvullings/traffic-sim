@@ -1,5 +1,5 @@
 import m from 'mithril';
-import { API, MeiosisComponent } from '../../services';
+import { API, MeiosisComponent, reloadSettings } from '../../services';
 import { FlatButton } from 'mithril-materialized';
 import { SimState } from '../../models';
 
@@ -26,7 +26,13 @@ export const SimControl: MeiosisComponent = () => {
           className: 'right p0',
           onclick: async () => {
             await m.request(`${API}/sim/state/reset`);
-            update({ simState: 'reset' });
+            const settings = await reloadSettings();
+
+            update({
+              simState: 'reset',
+              sims: () => [],
+              settings: () => settings,
+            });
           },
         }),
       ]);

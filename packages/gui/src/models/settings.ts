@@ -10,7 +10,7 @@ export const setLanguage = async (locale = i18n.currentLocale) => {
 
 export type ID = string;
 
-export type VehicleType = 'car' | 'truck' | 'bicycle' | 'pedestrian';
+export type VehicleType = 'car' | 'truck' | 'bicycle' | 'pedestrian' | 'motorscooter' | 'motorcycle';
 export type PoiType = 'poi' | 'warehouse';
 
 /** WGS84 location in longitude (x) and latitude (y) */
@@ -36,6 +36,8 @@ export type Vehicle = Location & {
   poi?: ID;
   /** List of POIs to visit */
   pois?: ID[];
+  /** Estimated time of arrival */
+  eta?: Date;
 };
 
 /** Locations that can be used as starting point or destination */

@@ -26,6 +26,10 @@ export class PriorityQueue<T> {
     this.queue.forEach(callbackfn);
   }
 
+  public map(callbackfn: (value: T, index: number, array: T[]) => void) {
+    return this.queue.map(callbackfn);
+  }
+
   public isEmpty(): boolean {
     return this.queue.length === 0;
   }

@@ -1,3 +1,5 @@
+import { FeatureCollection, LineString } from 'geojson';
+
 export * from './page';
 export * from './settings';
 export * from './layer-style';
@@ -19,3 +21,14 @@ export type AddVehicleToSim = {
   path: Point[];
   durations: Millisecond[];
 };
+
+export type VehiclePos = [id: string, paused: boolean, lon: number, lat: number, eta: Millisecond];
+
+export type RouteGeoJSON = FeatureCollection<
+  LineString,
+  {
+    durations: number[];
+    length: number;
+    time: number;
+  }
+>;
