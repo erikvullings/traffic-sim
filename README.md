@@ -22,5 +22,8 @@ npm start
 
 ## TODO
 
-- Save the settings to the server
 - When clicking on the map, add a point of interest.
+- Synchronize with testbed time service (optional)
+- Display (sim) time in app (simState contains current time and speed, as well as state).
+- Make editing description data easier
+- Write the landing page

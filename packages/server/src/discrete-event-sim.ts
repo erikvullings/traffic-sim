@@ -1,5 +1,5 @@
 import { PriorityQueue, Comparator } from './priority-queue';
-import { Millisecond, localTime } from './utils';
+import { Millisecond } from './utils';
 
 export type Position = [lon: number, lat: number];
 
@@ -14,6 +14,10 @@ interface ExtVehicle {
   curPosIdx: number;
   /** Last update time in msec */
   lastUpdate: number;
+  /** Description */
+  desc?: string;
+  /** Only used when the vehicle is paused */
+  curPos?: Position;
 }
 
 export interface SimulationEvent {
@@ -24,7 +28,7 @@ export interface SimulationEvent {
 
 export type Vehicle = Omit<ExtVehicle, 'lastUpdate' | 'curPosIdx'>;
 
-export type VehiclePos = [id: string, paused: boolean, ...Position, eta: Millisecond];
+export type SimInfo = [id: string, paused: boolean, ...Position, eta: Millisecond];
 
 export class TrafficSimulator {
   private currentTime = 0;
@@ -39,6 +43,7 @@ export class TrafficSimulator {
   }
 
   private calculateCurPosition(vehicle: ExtVehicle): Position {
+    if (vehicle.paused && vehicle.curPos) return vehicle.curPos;
     const curPos = vehicle.path[vehicle.curPosIdx];
     const availableTime = this.currentTime - vehicle.lastUpdate;
     const nextPosIdx = vehicle.curPosIdx + 1;
@@ -48,14 +53,17 @@ export class TrafficSimulator {
       const progressRatio = availableTime / duration;
       if (progressRatio > 1) {
         console.warn(`Progress ratio ${progressRatio} for vehicle ${vehicle.id}.`);
-        return curPos;
+        vehicle.curPos = nextPos;
+        return nextPos;
       }
       const latDiff = nextPos[1] - curPos[1];
       const lonDiff = nextPos[0] - curPos[0];
       const lat = curPos[1] + latDiff * progressRatio;
       const lon = curPos[0] + lonDiff * progressRatio;
+      vehicle.curPos = [lon, lat];
       return [lon, lat];
     } else {
+      vehicle.curPos = curPos;
       return curPos;
     }
   }
@@ -71,7 +79,7 @@ export class TrafficSimulator {
     if (vehicle.paused) return;
 
     const nextPosIdx = vehicle.curPosIdx + 1;
-    if (nextPosIdx < vehicle.path.length) {
+    if (nextPosIdx < vehicle.durations.length) {
       const duration = vehicle.durations[nextPosIdx];
       vehicle.curPosIdx = nextPosIdx;
       const event: SimulationEvent = {
@@ -82,6 +90,8 @@ export class TrafficSimulator {
       this.eventQueue.enqueue(event);
     } else {
       console.log(`Vehicle ${vehicle.id} arrived at ${new Date(this.currentTime).toLocaleTimeString()}.`);
+      vehicle.curPosIdx = nextPosIdx;
+      vehicle.curPos = vehicle.path[nextPosIdx];
       vehicle.paused = true;
     }
   }
@@ -115,17 +125,12 @@ export class TrafficSimulator {
     this.eventQueue.forEach((t) => (t.time = now));
   }
 
-  public runUntil(time: number): Array<VehiclePos> {
+  public runUntil(time: number): SimInfo[] {
     while (!this.eventQueue.isEmpty() && this.eventQueue.peek()!.time < time) {
       const nextEvent = this.eventQueue.dequeue()!;
       this.currentTime = nextEvent.time;
       this.processEvent(nextEvent);
     }
-    console.log(
-      `Run until ${localTime(time)}. Current time ${localTime(this.currentTime)}. Event queue times:\n${this.eventQueue
-        .map((e) => `${localTime(e.time)} - ${e.vehicle.id} - ${e.vehicle.curPosIdx}`)
-        .join('\n')}`
-    );
     this.currentTime = time;
     return this.vehicles.map((v) => [v.id, v.paused, ...this.calculateCurPosition(v), this.calculateETA(v)]);
   }

@@ -9,8 +9,7 @@ import { BaseRouteRequest, TurnByTurnRouteRequest } from '@iwpnd/valhalla-ts/dis
 import { CostingModels, LegWithManeuvers } from '@iwpnd/valhalla-ts/dist/types';
 import { spawn } from 'bun';
 import { convertAndTimeTrip, padLeft } from './utils';
-import { EmitMsg, AddVehicleToSim as VehicleInfo } from './simulator';
-import { VehiclePos } from './discrete-event-sim';
+import { EmitMsg, ExtSimInfo, VehicleToSim } from './simulator';
 
 config();
 
@@ -22,12 +21,18 @@ type Settings = Record<string, any>;
 
 // State
 let settings: Settings = {};
+let routes = new Map<string, VehicleToSim>();
+
 const simState = {
   running: false,
+  time: new Date(),
+  speed: 1,
   vehicles: [],
 } as {
   running: boolean;
-  vehicles: VehiclePos[];
+  time: Date;
+  speed: number;
+  vehicles: ExtSimInfo[];
 };
 
 if (existsSync(settingsFile)) {
@@ -37,13 +42,13 @@ if (existsSync(settingsFile)) {
 
 const simulator = spawn(['bun', './src/simulator.ts'], {
   stdout: 'inherit',
-  ipc(message: EmitMsg, childProc) {
+  ipc(message: EmitMsg) {
     // console.log('Message from simulator:', message);
     // childProc.send('Message from parent to simulator');
     const { type = 'unknown', data } = message;
     switch (type) {
       case 'state':
-        const vehicles = data as VehiclePos[];
+        const vehicles = data as ExtSimInfo[];
         console.log(
           'State updated:\n' +
             vehicles
@@ -138,13 +143,42 @@ app.get('/api/sim/state/reset', (c) => {
 
 // Vehicle interaction
 app.post('/api/sim/vehicle', async (c) => {
-  const data = await c.req.json<VehicleInfo>();
+  const data = await c.req.json<VehicleToSim>();
+  routes.set(data.id, data);
   simulator.send({ type: 'AddVehicle', data });
   return c.json(undefined);
 });
+app.get('/api/sim/vehicle/:id', async (c) => {
+  const id = c.req.param('id');
+  const route = routes.get(id);
+  return c.json(
+    route
+      ? {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              id,
+              geometry: {
+                type: 'LineString',
+                coordinates: route.path,
+              },
+              properties: {},
+            },
+          ],
+        }
+      : undefined
+  );
+});
+app.patch('/api/sim/vehicle/desc/:id', async (c) => {
+  const id = c.req.param('id');
+  const data = await c.req.json<{ id: string; desc: string }>();
+  if (id === data.id) simulator.send({ type: 'UpdateVehicleDesc', data });
+  return c.json(id === data.id);
+});
 app.patch('/api/sim/vehicle/:id', async (c) => {
   const id = c.req.param('id');
-  const data = await c.req.json<VehicleInfo>();
+  const data = await c.req.json<VehicleToSim>();
   if (id === data.id) simulator.send({ type: 'UpdateVehicle', data });
   return c.json(id === data.id);
 });
@@ -155,13 +189,13 @@ app.delete('/api/sim/vehicle/:id', (c) => {
 });
 app.patch('/api/sim/vehicle/pause/:id', (c) => {
   const id = c.req.param('id');
-  // TODO Add state validation, e.g. pause | resume
+  console.log(`Pausing ${id}`);
   simulator.send({ type: 'UpdateState', data: { id, state: 'pause' } });
   return c.text('UPDATED');
 });
 app.patch('/api/sim/vehicle/resume/:id', (c) => {
   const id = c.req.param('id');
-  // TODO Add state validation, e.g. pause | resume
+  console.log(`Resuming ${id}`);
   simulator.send({ type: 'UpdateState', data: { id, state: 'resume' } });
   return c.text('UPDATED');
 });

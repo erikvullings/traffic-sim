@@ -22,7 +22,7 @@ export type AddVehicleToSim = {
   durations: Millisecond[];
 };
 
-export type VehiclePos = [id: string, paused: boolean, lon: number, lat: number, eta: Millisecond];
+export type ExtSimInfo = [id: string, paused: boolean, lon: number, lat: number, eta: Millisecond, desc?: string];
 
 export type RouteGeoJSON = FeatureCollection<
   LineString,

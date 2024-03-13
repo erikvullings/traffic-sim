@@ -25,8 +25,10 @@ export const MapComponent: MeiosisComponent = () => {
     view: ({
       attrs: {
         state: { curVehicleId, sims, map, settings, route, routes },
+        actions: { getRouteSim },
       },
     }) => {
+      const editPoiId = `edit-${curVehicleId}`;
       if (map) {
         const routeSource = map.getSource('route') as GeoJSONSource;
         if (route) {
@@ -60,10 +62,12 @@ export const MapComponent: MeiosisComponent = () => {
           const [id, _, lon, lat, eta] = vehicle;
           if (id === curVehicleId) {
             curVehicleOnMap = true;
-            const source = map.getSource(curVehicleId);
+
+            const source = map.getSource(editPoiId);
             if (source) {
-              map.removeLayer(curVehicleId);
-              map.removeSource(curVehicleId);
+              console.log(`Removing layer ${curVehicleId}`);
+              map.removeLayer(editPoiId);
+              map.removeSource(editPoiId);
             }
           }
           const curVehicle = settings.vehicles.find((v) => v.id === id);
@@ -105,6 +109,7 @@ export const MapComponent: MeiosisComponent = () => {
                 center: coordinates,
               });
               new Popup().setLngLat(coordinates).setHTML(description).addTo(map);
+              getRouteSim(curVehicle);
             });
             // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
             map.on('mouseenter', id, () => {
@@ -135,11 +140,11 @@ export const MapComponent: MeiosisComponent = () => {
               properties: { id, type, label, desc, state, visible, eta },
             } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'visible' | 'eta'>>;
             if (!curVehicleSource) {
-              map.addSource(id, { type: 'geojson', data: json });
+              map.addSource(editPoiId, { type: 'geojson', data: json });
               map.addLayer({
-                id,
+                id: editPoiId,
                 type: 'symbol',
-                source: id,
+                source: editPoiId,
                 layout: {
                   'icon-image':
                     curVehicle.defaultIcon || !curVehicle.icon

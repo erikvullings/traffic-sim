@@ -29,7 +29,7 @@ export const AboutPage: MeiosisComponent = () => {
             iconName: roleIcon,
             options: [
               { id: 'user', label: t('USER') },
-              { id: 'editor', label: t('EDITOR') },
+              // { id: 'editor', label: t('EDITOR') },
               { id: 'admin', label: t('ADMIN') },
             ],
             onchange: (role) => {

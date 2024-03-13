@@ -4,6 +4,7 @@ import 'materialize-css/dist/css/materialize.min.css';
 import 'materialize-css/dist/js/materialize.min.js';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './css/style.css';
+import './css/toggle.css';
 import { routingSvc } from './services/routing-service';
 import { LANGUAGE } from './utils';
 import { Languages, i18n } from './services';

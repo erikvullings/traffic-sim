@@ -14,7 +14,7 @@ import {
   Settings,
   SimState,
   Vehicle,
-  VehiclePos,
+  ExtSimInfo,
   VehicleState,
 } from '../models';
 import { User, UserRole } from './login-service';
@@ -43,7 +43,7 @@ export interface State {
   /** Selected vehicle */
   curVehicleId?: ID;
   simState: SimState;
-  sims: VehiclePos[];
+  sims: ExtSimInfo[];
   /** Current route that was just obtained from Valhalla */
   route?: RouteGeoJSON;
   /** All routes of the sims */
@@ -69,7 +69,9 @@ export interface Actions {
   getLonLat: () => [lon: number, lat: number];
 
   getRoute: (vehicle: Vehicle) => Promise<void>;
+  getRouteSim: (vehicle: Vehicle) => Promise<void>;
   pauseResumeVehicle: (vehicle: Vehicle) => Promise<void>;
+  updateSimDesc: (id: string, desc: string) => Promise<void>;
 
   update: (patch: Patch<State>) => any;
   login: () => void;
@@ -178,25 +180,37 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
       },
     });
   },
+  getRouteSim: async (v) => {
+    const route = await m.request<RouteGeoJSON>(`${API}/sim/vehicle/${v.id}`);
+    update({
+      route: () => route,
+    });
+  },
   pauseResumeVehicle: async (vehicle: Vehicle) => {
     const { route } = states();
     const { id, state } = vehicle;
-    const newState: VehicleState =
-      state === 'moving' ? 'paused' : route && route.features.length > 0 ? 'moving' : 'not_initialized';
-    if (newState === 'moving' && route) {
-      const feature = route.features[0];
-      const body: AddVehicleToSim = {
-        id,
-        path: feature.geometry.coordinates as Point[],
-        durations: feature.properties.durations,
-      };
-      await m.request(`${API}/sim/vehicle`, { method: 'POST', body });
+    const newState: VehicleState = state === 'moving' ? 'paused' : 'moving';
+    if (newState === 'moving') {
+      if (route) {
+        const feature = route.features[0];
+        const body: AddVehicleToSim = {
+          id,
+          path: feature.geometry.coordinates as Point[],
+          durations: feature.properties.durations,
+        };
+        await m.request(`${API}/sim/vehicle`, { method: 'POST', body });
+      } else {
+        await m.request<boolean>(`${API}/sim/vehicle/resume/${id}`, {
+          method: 'PATCH',
+        });
+      }
     } else {
       await m.request<boolean>(`${API}/sim/vehicle/pause/${id}`, {
         method: 'PATCH',
       });
     }
     update({
+      route: undefined,
       settings: (s) => {
         const vehicle = s.vehicles?.find((v) => v.id === id);
         if (vehicle) vehicle.state = newState;
@@ -204,43 +218,53 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
       },
     });
   },
+  updateSimDesc: async (id, desc) => {
+    await m.request<boolean>(`${API}/sim/vehicle/desc/${id}`, {
+      method: 'PATCH',
+      body: { id, desc },
+    });
+  },
 
   update: (p) => update(p),
   login: () => {},
 });
 
+let updateSimServiceStarted = false;
+
 /** Service to update the simulation state */
 const updateSimState: Service<State> = {
-  onchange: ({ simState }) => simState === 'started' || simState === 'unknown',
   run: ({ update }) => {
+    if (updateSimServiceStarted) return;
+    updateSimServiceStarted = true;
+    console.log(`Sim service: updateSimState`);
     const updateSimState = async () => {
-      const result = await m.request<{ running: boolean; vehicles: VehiclePos[] }>(`${API}/sim/state`);
+      console.log(`Sim state: updateSimState`);
+      const result = await m.request<{ running: boolean; vehicles: ExtSimInfo[] }>(`${API}/sim/state`);
       if (!result) return;
       const { running, vehicles = [] } = result;
       const newSimState: SimState = running ? 'started' : vehicles.length === 0 ? 'reset' : 'paused';
-      setTimeout(updateSimState, newSimState === 'started' ? 5000 : 10000);
       if (newSimState !== 'started') {
         update({
           simState: newSimState,
         });
-        return;
+      } else {
+        // console.log(`Sim state: ${newSimState}`);
+        // console.log(vehicles);
+        update({
+          simState: newSimState,
+          sims: () => vehicles,
+          settings: (s) => {
+            s.vehicles?.forEach((v) => {
+              const vehicle = vehicles.find((vehicle) => vehicle[0] === v.id);
+              if (vehicle) v.state = vehicle[1] ? 'paused' : 'moving';
+            });
+            return s;
+          },
+        });
       }
-      // console.log(`Sim state: ${newSimState}`);
-      // console.log(vehicles);
-
-      update({
-        simState: newSimState,
-        sims: () => vehicles,
-        settings: (s) => {
-          s.vehicles?.forEach((v) => {
-            const vehicle = vehicles.find((vehicle) => vehicle[0] === v.id);
-            if (vehicle) v.state = vehicle[1] ? 'paused' : 'moving';
-          });
-          return s;
-        },
-      });
+      setTimeout(updateSimState, newSimState === 'started' ? 5000 : 10000);
     };
-    setTimeout(updateSimState, 0);
+    updateSimState();
   },
 };
 
@@ -253,7 +277,7 @@ const app = {
     settings: {
       version: 0,
     } as Settings,
-    sims: [] as VehiclePos[],
+    sims: [] as ExtSimInfo[],
   } as State,
   services: [updateSimState],
 } as MComponent<State>;
