@@ -113,23 +113,18 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                     },
                   }),
             ]),
-            m(
-              '.col.s12',
-              editDesc
-                ? m(TextArea, {
-                    onbeforeupdate: () => !editDesc,
-                    label: t('DESCRIPTION'),
-                    initialValue: desc,
-                    onchange: (v) => {
-                      console.log(v);
-                      desc = v;
-                      if (sim) sim[5] = v;
-                      // TODO save it such that everyone has it
-                      v && updateSimDesc(curVehicleId, v);
-                    },
-                  })
-                : m(SlimdownView, { md: desc, removeParagraphs: true })
-            ),
+
+            editDesc
+              ? m(TextArea, {
+                  onbeforeupdate: () => !editDesc,
+                  label: t('DESCRIPTION'),
+                  initialValue: desc,
+                  onchange: (v) => {
+                    if (v === desc) return;
+                    v && updateSimDesc(curVehicleId, v);
+                  },
+                })
+              : m('.col.s12', m(SlimdownView, { md: desc, removeParagraphs: true })),
             m('.right', [m(ToggleSwitchComponent, { onchange: (v) => (editDesc = v) })]),
           ],
         ]),
