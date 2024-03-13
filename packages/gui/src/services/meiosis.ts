@@ -236,9 +236,7 @@ const updateSimState: Service<State> = {
   run: ({ update }) => {
     if (updateSimServiceStarted) return;
     updateSimServiceStarted = true;
-    console.log(`Sim service: updateSimState`);
     const updateSimState = async () => {
-      console.log(`Sim state: updateSimState`);
       const result = await m.request<{ running: boolean; vehicles: ExtSimInfo[] }>(`${API}/sim/state`);
       if (!result) return;
       const { running, vehicles = [] } = result;

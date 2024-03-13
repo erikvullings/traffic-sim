@@ -25,5 +25,5 @@ npm start
 - When clicking on the map, add a point of interest.
 - Synchronize with testbed time service (optional)
 - Display (sim) time in app (simState contains current time and speed, as well as state).
-- Make editing description data easier
 - Write the landing page
+- Allow the user to add a via or end location by clicking on the map

@@ -91,7 +91,7 @@ app.post('/api/route/:id', async (c) => {
   // console.log(r);
   const trip = await valhalla.route<LegWithManeuvers>(r as TurnByTurnRouteRequest);
   if (!trip) return c.json(undefined);
-  writeFileSync(join(process.cwd(), 'route.json'), JSON.stringify(trip, null, 2));
+  // writeFileSync(join(process.cwd(), 'route.json'), JSON.stringify(trip, null, 2));
   const result = convertAndTimeTrip(trip);
   const { length, time } = trip.summary;
   // console.log(result);

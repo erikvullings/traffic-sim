@@ -34,22 +34,17 @@ export const MapRoutingComponent: MeiosisComponent = () => {
         curVehicle.pois = [''];
       }
       const isMoving = !curVehicle || curVehicle.state === 'moving';
+      const sim = curVehicleId && sims?.find((s) => s[0] === curVehicleId);
       if (curVehicleId) {
-        if (descVehicleId !== curVehicleId) {
-          descVehicleId = curVehicleId;
-          const sim = sims?.find((s) => s[0] === curVehicleId);
-          if (sim) {
-            desc = sim[5];
-          }
-          if (curVehicle && (typeof desc === 'undefined' || desc === null)) {
-            desc = curVehicle.desc;
-          }
+        if (sim) {
+          desc = sim[5];
         }
-      } else {
-        desc = undefined;
+        if (curVehicle && (typeof desc === 'undefined' || desc === null)) {
+          desc = curVehicle.desc;
+        }
       }
+      console.table(desc);
 
-      console.log('VIEW CALLED');
       return m('.map-routing', [
         m('.row', [
           m(Select, {
@@ -118,17 +113,23 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                     },
                   }),
             ]),
-            editDesc
-              ? m(TextArea, {
-                  label: t('DESCRIPTION'),
-                  initialValue: desc,
-                  onchange: (v) => {
-                    console.log(v);
-                    // TODO save it such that everyone has it
-                    v && updateSimDesc(curVehicleId, v);
-                  },
-                })
-              : m(SlimdownView, { md: desc, removeParagraphs: true }),
+            m(
+              '.col.s12',
+              editDesc
+                ? m(TextArea, {
+                    onbeforeupdate: () => !editDesc,
+                    label: t('DESCRIPTION'),
+                    initialValue: desc,
+                    onchange: (v) => {
+                      console.log(v);
+                      desc = v;
+                      if (sim) sim[5] = v;
+                      // TODO save it such that everyone has it
+                      v && updateSimDesc(curVehicleId, v);
+                    },
+                  })
+                : m(SlimdownView, { md: desc, removeParagraphs: true })
+            ),
             m('.right', [m(ToggleSwitchComponent, { onchange: (v) => (editDesc = v) })]),
           ],
         ]),

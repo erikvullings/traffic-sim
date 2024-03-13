@@ -59,7 +59,7 @@ export const MapComponent: MeiosisComponent = () => {
 
         let curVehicleOnMap = false;
         sims.forEach((vehicle) => {
-          const [id, _, lon, lat, eta] = vehicle;
+          const [id, _, lon, lat, eta, desc] = vehicle;
           if (id === curVehicleId) {
             curVehicleOnMap = true;
 
@@ -72,7 +72,7 @@ export const MapComponent: MeiosisComponent = () => {
           }
           const curVehicle = settings.vehicles.find((v) => v.id === id);
           if (!curVehicle) return;
-          const { type, label, desc, state } = curVehicle;
+          const { type, label, state } = curVehicle;
 
           const json = {
             id,
@@ -81,7 +81,7 @@ export const MapComponent: MeiosisComponent = () => {
               type: 'Point',
               coordinates: [lon, lat],
             },
-            properties: { id, type, label, desc, state, eta: new Date(eta) },
+            properties: { id, type, label, desc: desc || curVehicle.desc, state, eta: new Date(eta) },
           } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'eta'>>;
           const pointSource = map.getSource(id) as GeoJSONSource;
           if (pointSource) {
@@ -125,7 +125,7 @@ export const MapComponent: MeiosisComponent = () => {
 
         if (curVehicleId && !curVehicleOnMap) {
           const curVehicle = settings.vehicles?.find((v) => v.id === curVehicleId);
-          const curVehicleSource = map.getSource(curVehicleId);
+          const curVehicleSource = map.getSource(editPoiId);
           if (curVehicle && !curVehicleSource) {
             const { id, poi, type, label, desc, state, visible, eta } = curVehicle;
             const startPoint = settings.pois?.find((p) => p.id === poi) || ({} as PointOfInterest);
