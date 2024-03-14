@@ -1,20 +1,23 @@
-import m, { FactoryComponent } from 'mithril';
+import m, { Attributes, FactoryComponent } from 'mithril';
 import { uniqueId } from 'mithril-materialized';
 
 /** A simple toggle switch, toggling a state between two image icons */
-export const ToggleSwitchComponent: FactoryComponent<{
-  initialValue?: boolean;
-  /** Material icon to use for the off image, @default edit */
-  off?: string;
-  /** Material icon to use for the on image, @default visibility */
-  on?: string;
-  /** Class to apply to the off material icons image, @default 'blue white-text' */
-  offClass?: string;
-  /** Class to apply to the on material icons image, @default 'green white-text' */
-  onClass?: string;
-  /** Triggered when the input value is changed */
-  onchange?: (v: boolean) => void;
-}> = () => {
+export const ToggleSwitchComponent: FactoryComponent<
+  {
+    initialValue?: boolean;
+    /** Material icon to use for the off image, @default edit */
+    off?: string;
+    /** Material icon to use for the on image, @default visibility */
+    on?: string;
+    /** Class to apply to the off material icons image, @default 'blue white-text' */
+    offClass?: string;
+    /** Class to apply to the on material icons image, @default 'green white-text' */
+    onClass?: string;
+    /** Triggered when the input value is changed */
+    onchange?: (v: boolean) => void;
+    style?: string;
+  } & Attributes
+> = () => {
   const id = uniqueId();
 
   let state = false;
@@ -23,9 +26,17 @@ export const ToggleSwitchComponent: FactoryComponent<{
       state = initialValue;
     },
     view: ({
-      attrs: { off = 'edit', on = 'visibility', offClass = 'blue white-text', onClass = 'green white-text', onchange },
+      attrs: {
+        off = 'edit',
+        on = 'visibility',
+        offClass = 'blue white-text',
+        onClass = 'green white-text',
+        onchange,
+        className,
+        style,
+      },
     }) => {
-      return m('.on-off-toggle-switch', [
+      return m('.on-off-toggle-switch', { className, style }, [
         m('input[type=checkbox].on-off-toggle-switch-checkbox', {
           id,
           checked: state,
