@@ -6,7 +6,7 @@ import { t } from './translations';
 import { appActions, cells } from './meiosis';
 
 class RoutingService {
-  private pages!: ReadonlyArray<Page>;
+  private pages: Page[] = [];
 
   constructor() {}
 
@@ -17,6 +17,7 @@ class RoutingService {
         title: t('LANDING', 'TITLE'),
         route: t('LANDING', 'ROUTE'),
         visible: false,
+        default: true,
         component: LandingPage,
       },
       {
@@ -25,7 +26,6 @@ class RoutingService {
         title: t('HOME', 'TITLE'),
         route: t('HOME', 'ROUTE'),
         visible: true,
-        default: true,
         component: HomePage,
       },
       {
@@ -46,7 +46,13 @@ class RoutingService {
         component: SettingsPage,
       },
     ];
-    // console.log(JSON.stringify(routes, null, 2));
+    // console.log(
+    //   JSON.stringify(
+    //     routes.map(({ id, title, route }) => ({ id, title, route })),
+    //     null,
+    //     2
+    //   )
+    // );
     this.setList(routes);
     // console.log(JSON.stringify(this.dashboards, null, 2));
   }
@@ -56,7 +62,7 @@ class RoutingService {
   }
 
   public setList(list: Page[]) {
-    this.pages = Object.freeze(list);
+    this.pages = list;
   }
 
   public get defaultRoute() {
@@ -87,7 +93,7 @@ class RoutingService {
   }
 
   public routingTable() {
-    // console.log('INIT');
+    console.log('INIT');
     return this.pages.reduce((p, c) => {
       p[c.route] =
         c.hasNavBar === false

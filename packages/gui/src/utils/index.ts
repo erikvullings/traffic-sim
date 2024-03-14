@@ -1,7 +1,6 @@
 import { padLeft } from 'mithril-materialized';
 
-export const LANGUAGE = 'SG_LANGUAGE';
-export const SAVED = 'SG_MODEL_SAVED';
+export const LANGUAGE = 'TS_LANGUAGE';
 
 const supRegex = /\^([^_ ]+)(_|$|\s)/g;
 const subRegex = /\_([^\^ ]+)(\^|$|\s)/g;

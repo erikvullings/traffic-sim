@@ -1,7 +1,8 @@
 import translate, { Options, Translate } from 'translate.js';
 import { plural_EN } from 'translate.js/pluralize';
+import { LANGUAGE } from '../utils';
 
-export type Languages = 'nl' | 'en';
+export type Languages = 'nl' | 'en' | 'de' | 'unknown';
 
 export const messages = {
   HOME: { TITLE: 'home', ROUTE: '/home' },
@@ -51,6 +52,9 @@ export const messages = {
     LABEL: 'Save',
     TOOLTIP: 'Save unsaved changes',
   },
+  INTRO: `A traffic simulator to simulate traffic going from A to B. It will simply follow the route, but can be paused and rerouted if desired. 
+  There are two modes: one for regular users, who can only view the dispatched vehicles and their estimated time of arrival, 
+  and administrators, who can create and edit simulated vehicles.`,
 };
 
 export const messagesNL: typeof messages = {
@@ -101,6 +105,62 @@ export const messagesNL: typeof messages = {
     LABEL: 'Opslaan',
     TOOLTIP: 'Sla aanpassingen op',
   },
+  INTRO: `Een verkeerssimulator om het verkeer van A naar B te simuleren. Het zal eenvoudigweg de route volgen, maar kan worden gepauzeerd en omgeleid indien gewenst. 
+  Er zijn twee modi: één voor reguliere gebruikers, die alleen de verzonden voertuigen en hun geschatte aankomsttijd kunnen bekijken, 
+  en beheerders, die gesimuleerde voertuigen kunnen creëren en bewerken.`,
+};
+
+export const messagesDE = {
+  HOME: { TITLE: 'Zuhause', ROUTE: '/home' },
+  ABOUT: { TITLE: 'Über die App', ROUTE: '/about' },
+  SETTINGS: { TITLE: 'Einstellungen', ROUTE: '/settings' },
+  LANDING: { TITLE: 'Einführung', ROUTE: '/' },
+  VEHICLES: 'Fahrzeuge',
+  VEHICLE: 'Fahrzeug',
+  DESTINATION: 'Ziel',
+  POIS: 'Sehenswürdigkeiten',
+  POI: 'SEHENSWÜRDIGKEIT',
+  POI2: 'Startpunkt',
+  TYPE: 'Typ',
+  CAR: 'AUTO',
+  TRUCK: 'LASTWAGEN',
+  BICYCLE: 'FAHRRAD',
+  MOTORCYCLE: 'MOTORRAD',
+  PEDESTRIAN: 'FUSSGÄNGER',
+  WAREHOUSE: 'LAGER',
+  DEFAULT_ICON: 'Standard-Symbol verwenden',
+  SELECT_ROLE: 'Rolle auswählen',
+  SELECT_LANGUAGE: 'Sprache auswählen',
+  APP_NAME: 'Anwendungsname',
+  MAP_URL: 'Kartendienst-URL',
+  ETA: 'Geschätzte Ankunftszeit',
+  ARRIVED: 'Sie sind angekommen',
+  LAT: 'Breitengrad',
+  LON: 'Längengrad',
+  ICON: 'Symbol',
+  USER: 'Benutzer',
+  EDITOR: 'Editor',
+  ADMIN: 'Administrator',
+  CANCEL: 'Abbrechen',
+  DELETE: 'Löschen',
+  YES: 'Ja',
+  NO: 'Nein',
+  OK: 'Ok',
+  NAME: 'Name',
+  PICK_ONE: 'Wähle eins',
+  PICK_MORE: 'Wähle eins oder mehrere',
+  DESCRIPTION: 'Beschreibung',
+  DELETE_ITEM: {
+    TITLE: 'Lösche {item}',
+    DESCRIPTION: 'Sind Sie sicher, dass Sie dieses {item} löschen möchten? Es gibt kein Zurück?',
+  },
+  SAVE_BUTTON: {
+    LABEL: 'Speichern',
+    TOOLTIP: 'Ungespeicherte Änderungen speichern',
+  },
+  INTRO: `Ein Verkehrssimulator, um den Verkehr von A nach B zu simulieren. Es wird einfach der Route folgen, kann aber pausiert und umgeleitet werden, wenn gewünscht. 
+  Es gibt zwei Modi: einen für normale Benutzer, die nur die entsandten Fahrzeuge und ihre geschätzte Ankunftszeit sehen können, 
+  und Administratoren, die simulierte Fahrzeuge erstellen und bearbeiten können.`,
 };
 
 const setGuiLanguage = (language: Languages) => {
@@ -112,7 +172,10 @@ const setGuiLanguage = (language: Languages) => {
     pluralize: plural_EN, //[Function(count)]: Provides a custom pluralization mapping function, should return a string (or number)
     useKeyForMissingTranslation: true, //[Boolean]: If there is no translation found for given key, the key is used as translation, when set to false, it returns undefiend in this case
   };
-  return translate(language === 'nl' ? messagesNL : messages, options) as Translate<typeof messages, Options>;
+  return translate(language === 'nl' ? messagesNL : language === 'de' ? messagesDE : messages, options) as Translate<
+    typeof messages,
+    Options
+  >;
 };
 
 export type TextDirection = 'rtl' | 'ltr';
@@ -136,7 +199,7 @@ const onChangeLocale: Listener[] = [];
 
 export const i18n = {
   defaultLocale: 'en' as Languages,
-  currentLocale: 'en' as Languages,
+  currentLocale: 'unknown' as Languages,
   locales: {} as Locales,
   init,
   addOnChangeListener,
@@ -166,6 +229,7 @@ function addOnChangeListener(listener: Listener) {
 }
 
 async function loadAndSetLocale(newLocale: Languages) {
+  localStorage.setItem(LANGUAGE, newLocale);
   if (i18n.currentLocale === newLocale) {
     return;
   }

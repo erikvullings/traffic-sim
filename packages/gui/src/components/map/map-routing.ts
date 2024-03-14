@@ -8,7 +8,6 @@ import { ToggleSwitchComponent } from '../ui/toggle';
 export const MapRoutingComponent: MeiosisComponent = () => {
   let editDesc = false;
   let desc: string | undefined;
-  let descVehicleId: string | undefined;
 
   const updateVehicle = async (
     curVehicle: Vehicle,
@@ -43,7 +42,6 @@ export const MapRoutingComponent: MeiosisComponent = () => {
           desc = curVehicle.desc;
         }
       }
-      console.table(desc);
 
       return m('.map-routing', [
         m('.row', [

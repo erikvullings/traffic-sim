@@ -9,24 +9,22 @@ import { routingSvc } from './services/routing-service';
 import { LANGUAGE } from './utils';
 import { Languages, i18n } from './services';
 
-document.documentElement.setAttribute('lang', 'en');
+const language = (localStorage.getItem(LANGUAGE) || 'nl') as Languages;
 
-// window.onbeforeunload = (e) => {
-//   if (localStorage.getItem(SAVED) === 'true') return;
-//   localStorage.setItem(SAVED, 'true');
-//   e.preventDefault(); // This is necessary for older browsers
-//   e.returnValue = ''; // For modern browsers
-// };
+document.documentElement.setAttribute('lang', language);
 
-i18n.addOnChangeListener((_locale: string) => {
-  console.log(`Language loaded`);
+i18n.addOnChangeListener((language: string) => {
+  console.log(`GUI language: ${language}, navigating to ${location.pathname}`);
+  document.documentElement.setAttribute('lang', language);
   routingSvc.init();
-  m.route(document.body, routingSvc.defaultRoute, routingSvc.routingTable());
+  m.route(document.body, location.pathname, routingSvc.routingTable());
 });
 i18n.init(
   {
     en: { name: 'English', fqn: 'en-UK', default: true },
     nl: { name: 'Nederlands', fqn: 'nl-NL' },
+    de: { name: 'Deutsch', fqn: 'de-DE' },
+    unknown: { name: 'English', fqn: 'en-UK' },
   },
-  (localStorage.getItem(LANGUAGE) || 'nl') as Languages
+  language
 );

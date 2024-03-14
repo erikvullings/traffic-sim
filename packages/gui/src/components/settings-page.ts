@@ -1,9 +1,10 @@
 import m from 'mithril';
 import { Pages, PoiType, PointOfInterest, Settings, Vehicle, VehicleType } from '../models';
-import { MeiosisComponent, t } from '../services';
+import { Languages, MeiosisComponent, i18n, t } from '../services';
 import { FormAttributes, LayoutForm, UIForm } from 'mithril-ui-form';
 import { UploadDownload } from './ui/upload-download';
 import { SimControl } from './map/sim-control';
+import { ISelectOptions, Select } from 'mithril-materialized';
 
 export const SettingsPage: MeiosisComponent = () => {
   const defaultIcons = new Map<VehicleType | PoiType, string>([
@@ -115,7 +116,25 @@ export const SettingsPage: MeiosisComponent = () => {
       return m(
         '.container',
         m('#settings-page.row.settings.page', [
-          m('.col.s12', [m(UploadDownload, { settings, saveSettings }), m(SimControl, { state, actions })]),
+          m('.col.s12', [
+            m(Select, {
+              className: 'left',
+              initialValue: i18n.currentLocale,
+              iconName: 'language',
+              label: t('SELECT_LANGUAGE'),
+              options: [
+                { id: 'en', label: i18n.locales.en.name },
+                { id: 'nl', label: i18n.locales.nl.name },
+                { id: 'de', label: i18n.locales.de.name },
+              ],
+              onchange: async (l) => {
+                console.log(i18n.currentLocale);
+                await i18n.loadAndSetLocale(l[0]);
+              },
+            } as ISelectOptions<Languages>),
+            m(UploadDownload, { settings, saveSettings }),
+            m(SimControl, { state, actions }),
+          ]),
           m('h5.col.s12', t('SETTINGS', 'TITLE')),
           m(LayoutForm, {
             form,
