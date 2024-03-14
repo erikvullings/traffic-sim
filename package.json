@@ -1,12 +1,15 @@
 {
-  "name": "traffic simulator",
+  "name": "traffic_simulator",
   "version": "0.0.1",
   "private": "true",
   "description": "Basic framework for developing mithril applications.",
   "scripts": {
     "clean": "pnpm --parallel run clean",
     "start": "pnpm --parallel run dev",
-    "build": "pnpm recursive run build"
+    "build": "pnpm recursive run build",
+    "docker:build": "docker buildx build -t traffic-sim .",
+    "docker:run": "docker run --name traffic-sim -it -p 6060:8080 traffic-sim",
+    "docker:sh": "docker run -it traffic-sim sh"
   },
   "keywords": [
     "mithril",

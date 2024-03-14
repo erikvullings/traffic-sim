@@ -6,7 +6,7 @@
 #   docker run -it -p 8080:8080 safr
 
 # Build the app separately
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 
 # ARG SERVER_URL
 # ARG SERVER_PATH
@@ -14,50 +14,36 @@ FROM node:18-alpine as builder
 # ENV SERVER_URL=${SERVER_URL}
 # ENV SERVER_PATH=${SERVER_PATH}
 
-RUN apk add --no-cache --virtual .gyp python3 make g++ git vips-dev && \
-  npm i -g yalc
-RUN mkdir /packages && \
-  mkdir /packages/shared && \
-  mkdir /packages/gui && \
-  mkdir /packages/server
-COPY ./packages/shared /packages/shared
-WORKDIR /packages/shared
-RUN npm install && \
-  npm run build:domain && \
-  yalc publish --private
-COPY ./packages/server /packages/server
-WORKDIR /packages/server
-RUN yalc add c2app-models-utils && \
-  npm install && \
-  npm run build:domain
-COPY ./packages/gui /packages/gui
+# RUN apk add --no-cache --virtual .gyp python3 make g++ git vips-dev && \
+#   npm i -g yalc
+RUN mkdir -p /packages/gui && mkdir -p /packages/server
+COPY ./packages/gui/LICENSE /packages/gui/LICENSE
+COPY ./packages/gui/package.json /packages/gui/package.json
 WORKDIR /packages/gui
-RUN rm -fr node_modules && \
-  yalc add c2app-models-utils && \
-  npm install && \
-  npm run build:domain
+RUN npm install
+COPY ./packages/gui/favicon.ico /packages/gui/favicon.ico
+COPY ./packages/gui/src /packages/gui/src
+COPY ./packages/gui/rspack.config.ts /packages/gui/rspack.config.ts
+COPY ./packages/gui/tsconfig.json /packages/gui/tsconfig.json
+COPY ./packages/gui/README.md /packages/gui/README.md
+RUN npm run build
 
 # Serve the built app
-FROM node:18-alpine as app
+FROM oven/bun:alpine as app
 
-# ARG SERVER_URL
-# ARG SERVER_PATH
 ARG GIT_COMMIT=latest
-
-# ENV SERVER_URL=${SERVER_URL}
-# ENV SERVER_PATH=${SERVER_PATH}
 
 LABEL git_commit=$GIT_COMMIT
 
 RUN mkdir -p /app
-COPY --from=builder /packages/shared/node_modules /shared/node_modules
-COPY --from=builder /packages/shared/dist /shared
-COPY --from=builder /packages/server/node_modules /app/node_modules
-COPY --from=builder /packages/server/package.json /app/package.json
-COPY --from=builder /packages/server/dist /app/dist
-COPY --from=builder /packages/server/public /app/public
-COPY --from=builder /packages/server/.yalc /app/.yalc
-COPY --from=builder /packages/server/layer_styles /app/layer_styles
 WORKDIR /app
+COPY ./packages/server/tsconfig.json /app/tsconfig.json
+COPY ./packages/server/package.json /app/package.json
+RUN bun install
+COPY ./packages/server/src /app/src
+COPY --from=builder /packages/server/public /app/public
+
+ENV PORT=8080
+ENV VALHALLA_SERVER=valhalla
 EXPOSE 8080
-CMD ["node", "./dist/index.js"]
+CMD ["bun", "./src/index.ts"]
