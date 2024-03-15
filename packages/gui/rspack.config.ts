@@ -14,8 +14,8 @@ config();
 const devMode = (process.env as any).NODE_ENV === 'development';
 const isProduction = !devMode;
 const outputPath = resolve(__dirname, isProduction ? '../server/public' : 'dist');
-const SERVER = devMode ? process.env.SERVER || 'http://localhost:1234' : '';
-const publicPath = isProduction ? '/' : '/';
+const SERVER = devMode ? process.env.SERVER || 'http://localhost:1234' : '.';
+const publicPath = isProduction ? '/' : './';
 const APP_TITLE = 'Traffic Simulator';
 const APP_DESC = 'A traffic simulator that allows you to plan traffic and which simulates its progress in time.';
 const APP_PORT = +(process.env.PORT || 3423);
@@ -115,7 +115,7 @@ const configuration: Configuration = {
     ],
   },
   output: {
-    filename: '[id].bundle.js',
+    filename: 'bundle.[id].js',
     publicPath,
     path: outputPath,
   },
