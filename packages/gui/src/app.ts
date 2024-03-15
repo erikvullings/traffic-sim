@@ -17,7 +17,7 @@ i18n.addOnChangeListener((language: string) => {
   console.log(`GUI language: ${language}, navigating to ${location.pathname}`);
   document.documentElement.setAttribute('lang', language);
   routingSvc.init();
-  m.route(document.body, location.pathname, routingSvc.routingTable());
+  m.route(document.body, routingSvc.defaultRoute, routingSvc.routingTable());
 });
 i18n.init(
   {
