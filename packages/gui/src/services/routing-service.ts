@@ -93,7 +93,6 @@ class RoutingService {
   }
 
   public routingTable() {
-    console.log('INIT');
     return this.pages.reduce((p, c) => {
       p[c.route] =
         c.hasNavBar === false

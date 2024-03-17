@@ -14,7 +14,7 @@ const language = (localStorage.getItem(LANGUAGE) || 'nl') as Languages;
 document.documentElement.setAttribute('lang', language);
 
 i18n.addOnChangeListener((language: string) => {
-  console.log(`GUI language: ${language}, navigating to ${location.pathname}`);
+  console.log(`GUI language: ${language}`);
   document.documentElement.setAttribute('lang', language);
   routingSvc.init();
   m.route(document.body, routingSvc.defaultRoute, routingSvc.routingTable());

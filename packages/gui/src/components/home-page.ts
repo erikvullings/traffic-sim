@@ -12,7 +12,6 @@ export const HomePage: MeiosisComponent = () => {
     }) => setPage(Pages.HOME),
     view: ({ attrs: { state, actions } }) => {
       const { role, settings: { version } = { version: 0 } } = state;
-      console.log(version);
       return [
         m('#home-page.home', [
           m(MapComponent, { key: `map_${version}`, state, actions }),

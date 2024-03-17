@@ -65,7 +65,7 @@ export const MapComponent: MeiosisComponent = () => {
 
             const source = map.getSource(editPoiId);
             if (source) {
-              console.log(`Removing layer ${curVehicleId}`);
+              // console.log(`Removing layer ${curVehicleId}`);
               map.removeLayer(editPoiId);
               map.removeSource(editPoiId);
             }
@@ -173,7 +173,6 @@ export const MapComponent: MeiosisComponent = () => {
         actions,
       },
     }) => {
-      console.log('MAP created');
       // const { mapUrl = '' } = state.settings;
       const { getLonLat, getZoomLevel, setMap } = actions;
       const brtStyle = {
