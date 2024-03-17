@@ -4,7 +4,7 @@ import { Feature, Point as GeoJSONPoint } from 'geojson';
 import { GeoJSONSource } from 'maplibre-gl';
 import { simpleHash } from '.';
 import { MeiosisComponent } from '../../services/meiosis';
-import { loadMissingImages, setLonLat, setZoomLevel } from './map-utils';
+import { loadImages, setLonLat, setZoomLevel } from './map-utils';
 import { PointOfInterest, Vehicle } from '../../models';
 import { render } from 'mithril-ui-form';
 import { t } from '../../services';
@@ -97,7 +97,7 @@ export const MapComponent: MeiosisComponent = () => {
                   curVehicle.defaultIcon || !curVehicle.icon ? curVehicle.type : `icon_${simpleHash(curVehicle.icon)}`,
               },
             });
-            map.on('click', id, (e) => {
+            map.on('click', id, async (e) => {
               if (!e.features || e.features.length < 1) return;
               const { geometry, properties = {} } = e.features![0];
               const { desc = '' } = properties;
@@ -108,8 +108,11 @@ export const MapComponent: MeiosisComponent = () => {
               map.flyTo({
                 center: coordinates,
               });
-              new Popup().setLngLat(coordinates).setHTML(description).addTo(map);
-              getRouteSim(curVehicle);
+              new Popup()
+                .setLngLat([coordinates[0], coordinates[1] + 0.002])
+                .setHTML(description)
+                .addTo(map);
+              await getRouteSim(curVehicle);
             });
             // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
             map.on('mouseenter', id, () => {
@@ -159,16 +162,18 @@ export const MapComponent: MeiosisComponent = () => {
         if (routes && routes.features.length > 0) {
         }
       }
-      return m('#mapboxMap', { key: `settings${settings.version}` });
+
+      return m('#mapboxMap');
     },
     oncreate: ({
       attrs: {
         state: {
-          settings: { mapUrl = 'http://localhost/maptiler/styles/basic-preview/style.json' },
+          settings: { vehicles, mapUrl = 'http://localhost/maptiler/styles/basic-preview/style.json' },
         },
         actions,
       },
     }) => {
+      console.log('MAP created');
       // const { mapUrl = '' } = state.settings;
       const { getLonLat, getZoomLevel, setMap } = actions;
       const brtStyle = {
@@ -202,7 +207,8 @@ export const MapComponent: MeiosisComponent = () => {
         zoom: getZoomLevel(),
         // hash: 'loc',
       });
-      loadMissingImages(map);
+      loadImages(map, vehicles);
+      // loadMissingImages(map);
       // updateGrid(appState, actions, map);
       // Add map listeners
       map.on('load', () => {

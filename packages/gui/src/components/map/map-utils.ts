@@ -4,12 +4,15 @@ import { Map as MaplibreMap } from 'maplibre-gl';
 import car from '../../assets/icons/car.png';
 import truck from '../../assets/icons/truck.png';
 import pedestrian from '../../assets/icons/walk.png';
+import motorcycle from '../../assets/icons/motorcycle.png';
+import scooter from '../../assets/icons/scooter.png';
+import bicycle from '../../assets/icons/bicycle.png';
 
 // ICONS
 // import marker from '../../assets/icons/mapbox-marker-icon-20px-blue.png';
 // import marker from '../../assets/icons/mapbox-marker-icon-20px-blue.png';
 import { Actions } from '../../services';
-import { CostingModels, VehicleType } from '../../models';
+import { CostingModels, Vehicle, VehicleType } from '../../models';
 
 export const drawConfig = {
   displayControlsDefault: false,
@@ -21,25 +24,46 @@ export const drawConfig = {
   },
 };
 
+export const loadImage = async (map: MaplibreMap, id: string, url: string) => {
+  const img = await map.loadImage(url);
+  if (!map.hasImage(id)) map.addImage(id, img.data);
+};
+
+export const loadImages = async (map: MaplibreMap, vehicles?: Vehicle[]) => {
+  await loadImage(map, 'car', car);
+  await loadImage(map, 'truck', truck);
+  await loadImage(map, 'pedestrian', pedestrian);
+  await loadImage(map, 'bicycle', bicycle);
+  await loadImage(map, 'scooter', scooter);
+  await loadImage(map, 'motorcycle', motorcycle);
+  if (!vehicles || vehicles.length === 0) return;
+  for (const vehicle of vehicles) {
+    const { icon } = vehicle;
+    if (!icon) continue;
+    const iconId = `icon_${simpleHash(vehicle.icon)}`;
+    await loadImage(map, iconId, icon);
+  }
+};
+
 export const loadMissingImages = (map: MaplibreMap) => {
   map.on('styleimagemissing', async (e) => {
-    switch (e.id as VehicleType) {
-      case 'car': {
-        const img = await map.loadImage(car);
-        if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
-        break;
-      }
-      case 'truck': {
-        const img = await map.loadImage(truck);
-        if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
-        break;
-      }
-      case 'pedestrian': {
-        const img = await map.loadImage(pedestrian);
-        if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
-        break;
-      }
-    }
+    // switch (e.id as VehicleType) {
+    //   case 'car': {
+    //     const img = await map.loadImage(car);
+    //     if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
+    //     break;
+    //   }
+    //   case 'truck': {
+    //     const img = await map.loadImage(truck);
+    //     if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
+    //     break;
+    //   }
+    //   case 'pedestrian': {
+    //     const img = await map.loadImage(pedestrian);
+    //     if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
+    //     break;
+    //   }
+    // }
     // const id = e.id; // id of the missing image
     // const url = id.endsWith('/') ? marker : `${process.env.SERVER}/layer_styles/${id}`;
     // try {
