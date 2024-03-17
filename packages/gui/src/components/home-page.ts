@@ -11,13 +11,15 @@ export const HomePage: MeiosisComponent = () => {
       },
     }) => setPage(Pages.HOME),
     view: ({ attrs: { state, actions } }) => {
-      const { role } = state;
+      const { role, settings: { version } = { version: 0 } } = state;
+      console.log(version);
       return [
-        m(
-          '#home-page.home',
-          m(MapComponent, { state, actions }),
-          role !== 'user' && m(MapRoutingComponent, { state, actions })
-        ),
+        m('#home-page.home', [
+          m(MapComponent, { key: `map_${version}`, state, actions }),
+          role !== 'user'
+            ? m(MapRoutingComponent, { key: `map_routing_${version}`, state, actions })
+            : m('div', { key: `map_routing_0` }),
+        ]),
       ];
     },
   };
