@@ -13,6 +13,13 @@ import { EmitMsg, ExtSimInfo, VehicleToSim } from './simulator';
 
 config();
 
+const valhallaUrl = process.env.VALHALLA_SERVER;
+if (valhallaUrl) {
+  console.info(`Accessing Valhalla at ${process.env.VALHALLA_SERVER}`);
+} else {
+  console.error(`Valhalla URL not set. Exiting...`);
+  process.exit(1);
+}
 const valhalla = new Valhalla(process.env.VALHALLA_SERVER);
 const settingsFile = join(process.cwd(), 'settings.json');
 

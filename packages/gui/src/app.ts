@@ -6,8 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './css/style.css';
 import './css/toggle.css';
 import { routingSvc } from './services/routing-service';
-import { LANGUAGE } from './utils';
-import { Languages, i18n } from './services';
+import { LANGUAGE, Languages, i18n } from './services';
 
 const language = (localStorage.getItem(LANGUAGE) || 'nl') as Languages;
 

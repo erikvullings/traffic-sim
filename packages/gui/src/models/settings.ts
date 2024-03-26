@@ -1,13 +1,3 @@
-import { i18n } from '../services';
-
-export const LANGUAGE = 'SG_LANGUAGE';
-export const SAVED = 'SG_MODEL_SAVED';
-
-export const setLanguage = async (locale = i18n.currentLocale) => {
-  localStorage.setItem(LANGUAGE, locale);
-  await i18n.loadAndSetLocale(locale);
-};
-
 export type ID = string;
 
 export type VehicleType = 'car' | 'truck' | 'bicycle' | 'pedestrian' | 'motorscooter' | 'motorcycle';
@@ -51,6 +41,8 @@ export type PointOfInterest = Location & {
   icon: string;
   /** Use default icon */
   defaultIcon: boolean;
+  /** For parsing the latitude and longitude */
+  latlon?: string;
 };
 
 export type Settings = {

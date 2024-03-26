@@ -1,6 +1,5 @@
 import translate, { Options, Translate } from 'translate.js';
 import { plural_EN } from 'translate.js/pluralize';
-import { LANGUAGE } from '../utils';
 
 export type Languages = 'nl' | 'en' | 'de' | 'unknown';
 
@@ -12,8 +11,8 @@ export const messages = {
   VEHICLES: 'Vehicles',
   VEHICLE: 'Vehicle',
   DESTINATION: 'Destination',
-  POIS: 'Points of interest',
-  POI: 'POINT OF INTEREST',
+  POIS: 'Places',
+  POI: 'Place',
   POI2: 'Start point',
   TYPE: 'Type',
   CAR: 'CAR',
@@ -30,8 +29,11 @@ export const messages = {
   MAP_URL: 'Map service URL',
   ETA: 'Estimated time of arrival',
   ARRIVED: 'You have arrived',
+  ARRIVAL_IN: 'arrival in',
   LAT: 'Latitude',
   LON: 'Longitude',
+  LATLON: { TITLE: 'Latitude, Longitude', DESC: 'Paste from maps, e.g. 52.1234, 4.3456' },
+  COPIED: 'Copied coordinates to clipboard',
   ICON: 'Icon',
   USER: 'User',
   EDITOR: 'Editor',
@@ -45,6 +47,8 @@ export const messages = {
   PICK_ONE: 'Pick one',
   PICK_MORE: 'Pick one or more',
   DESCRIPTION: 'Description',
+  DESCRIPTION2: 'Description (markdown)',
+  PREVIEW: 'Preview description',
   DELETE_ITEM: {
     TITLE: 'Delete {item}',
     DESCRIPTION: 'Are you certain you want to delete this {item}. There is no turning back?',
@@ -66,8 +70,8 @@ export const messagesNL: typeof messages = {
   VEHICLES: 'Voertuigen',
   VEHICLE: 'Voertuig',
   DESTINATION: 'Bestemming',
-  POIS: 'Punten van interesse',
-  POI: 'Punt van interesse',
+  POIS: 'Plaatsen',
+  POI: 'Plaats',
   POI2: 'Startpunt',
   TYPE: 'Type',
   CAR: 'AUTO',
@@ -84,8 +88,11 @@ export const messagesNL: typeof messages = {
   MAP_URL: 'Kaartservice URL',
   ETA: 'Verwachte tijd van aankomst',
   ARRIVED: 'U bent aangekomen',
+  ARRIVAL_IN: 'aankomst over',
   LAT: 'Latitude',
   LON: 'Longitude',
+  LATLON: { TITLE: 'Latitude, Longitude', DESC: 'Plak van Google maps, e.g. 52.1234, 4.3456' },
+  COPIED: 'Coördinaten zijn gekopiëerd',
   ICON: 'Icoon',
   USER: 'Gebruiker',
   EDITOR: 'Editor',
@@ -99,6 +106,8 @@ export const messagesNL: typeof messages = {
   PICK_ONE: 'Maak een keuze',
   PICK_MORE: 'Kies één of meer',
   DESCRIPTION: 'Omschrijving',
+  DESCRIPTION2: 'Omschrijving (markdown)',
+  PREVIEW: 'Voorbeeld omschrijving',
   DELETE_ITEM: {
     TITLE: 'Verwijder {item}',
     DESCRIPTION: 'Weet u zeker dat u de {item} wilt verwijderen? Dit kan niet ongedaan gemaakt worden.',
@@ -120,8 +129,8 @@ export const messagesDE = {
   VEHICLES: 'Fahrzeuge',
   VEHICLE: 'Fahrzeug',
   DESTINATION: 'Ziel',
-  POIS: 'Sehenswürdigkeiten',
-  POI: 'SEHENSWÜRDIGKEIT',
+  POIS: 'Orte',
+  POI: 'Ort',
   POI2: 'Startpunkt',
   TYPE: 'Typ',
   CAR: 'AUTO',
@@ -138,8 +147,11 @@ export const messagesDE = {
   MAP_URL: 'Kartendienst-URL',
   ETA: 'Geschätzte Ankunftszeit',
   ARRIVED: 'Sie sind angekommen',
+  ARRIVAL_IN: 'Ankunft in',
   LAT: 'Breitengrad',
   LON: 'Längengrad',
+  LATLON: { TITLE: 'Breitengrad, Längengrad', DESC: 'Aus Google Maps einfügen, z.B. 52.1234, 4.3456' },
+  COPIED: 'Koordinaten in die Zwischenablage kopiert',
   ICON: 'Symbol',
   USER: 'Benutzer',
   EDITOR: 'Editor',
@@ -153,6 +165,8 @@ export const messagesDE = {
   PICK_ONE: 'Wähle eins',
   PICK_MORE: 'Wähle eins oder mehrere',
   DESCRIPTION: 'Beschreibung',
+  DESCRIPTION2: 'Beschreibung (markdown)',
+  PREVIEW: 'Vorschau Beschreibung',
   DELETE_ITEM: {
     TITLE: 'Lösche {item}',
     DESCRIPTION: 'Sind Sie sicher, dass Sie dieses {item} löschen möchten? Es gibt kein Zurück?',
@@ -232,7 +246,6 @@ function addOnChangeListener(listener: Listener) {
 }
 
 async function loadAndSetLocale(newLocale: Languages) {
-  localStorage.setItem(LANGUAGE, newLocale);
   if (i18n.currentLocale === newLocale) {
     return;
   }

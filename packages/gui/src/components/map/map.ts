@@ -1,6 +1,6 @@
 import m from 'mithril';
 import { GeolocateControl, Map as MaplibreMap, NavigationControl, Popup, ScaleControl } from 'maplibre-gl';
-import { Feature, Point as GeoJSONPoint } from 'geojson';
+import { Feature, FeatureCollection, Point as GeoJSONPoint } from 'geojson';
 import { GeoJSONSource } from 'maplibre-gl';
 import { simpleHash } from '.';
 import { MeiosisComponent } from '../../services/meiosis';
@@ -8,6 +8,7 @@ import { loadImages, setLonLat, setZoomLevel } from './map-utils';
 import { PointOfInterest, Vehicle } from '../../models';
 import { render } from 'mithril-ui-form';
 import { t } from '../../services';
+import { padLeft } from 'mithril-materialized';
 // https://github.com/korywka/mapbox-controls/tree/master/packages/tooltip
 // import TooltipControl from '@mapbox-controls/tooltip';
 
@@ -24,12 +25,72 @@ export const MapComponent: MeiosisComponent = () => {
   return {
     view: ({
       attrs: {
-        state: { curVehicleId, sims, map, settings, route, routes },
+        state: { curVehicleId, sims, map, settings, route },
         actions: { getRouteSim },
       },
     }) => {
       const editPoiId = `edit-${curVehicleId}`;
       if (map) {
+        const { pois = [] } = settings;
+        const visiblePois = pois.filter(
+          (p) => p.type !== 'poi' && typeof p.lon !== 'undefined' && typeof p.lat !== 'undefined'
+        );
+        if (visiblePois.length > 0) {
+          const features = visiblePois.map(
+            ({ id, label, desc, type, lon, lat, icon, defaultIcon }) =>
+              ({
+                id,
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: [lon, lat],
+                },
+                properties: { id, type, label, desc, icon: defaultIcon ? type : `icon_${simpleHash(icon)}` },
+              } as Feature<GeoJSONPoint, Pick<PointOfInterest, 'id' | 'label' | 'type' | 'icon' | 'desc'>>)
+          );
+
+          const id = 'pois';
+          const poiSource = map.getSource(id) as GeoJSONSource;
+          const fc = { type: 'FeatureCollection', features } as FeatureCollection;
+          if (poiSource) {
+            poiSource.setData(fc);
+          } else {
+            map.addSource(id, { type: 'geojson', data: fc });
+            map.addLayer({
+              id,
+              type: 'symbol',
+              source: id,
+              layout: {
+                'icon-allow-overlap': true,
+                'icon-image': ['get', 'icon'],
+              },
+            });
+            map.on('click', id, async (e) => {
+              if (!e.features || e.features.length < 1) return;
+              const { geometry, properties = {} } = e.features![0];
+              const { desc = '', label } = properties;
+              const coordinates = (geometry as GeoJSONPoint).coordinates.slice() as [number, number];
+              const description = render(
+                `###### ${label}
+              ${desc}`,
+                true
+              );
+              new Popup()
+                .setLngLat([coordinates[0], coordinates[1] + 0.002])
+                .setHTML(description)
+                .addTo(map);
+            });
+            // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
+            map.on('mouseenter', id, () => {
+              map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', id, () => {
+              map.getCanvas().style.cursor = '';
+            });
+          }
+        }
         const routeSource = map.getSource('route') as GeoJSONSource;
         if (route) {
           // console.log('ROUTE');
@@ -37,20 +98,23 @@ export const MapComponent: MeiosisComponent = () => {
             routeSource.setData(route);
           } else {
             map.addSource('route', { type: 'geojson', data: route });
-            map.addLayer({
-              id: 'route',
-              type: 'line',
-              source: 'route',
-              layout: {
-                'line-cap': 'round',
-                'line-join': 'round',
+            map.addLayer(
+              {
+                id: 'route',
+                type: 'line',
+                source: 'route',
+                layout: {
+                  'line-cap': 'round',
+                  'line-join': 'round',
+                },
+                paint: {
+                  'line-color': '#0000ff',
+                  'line-width': 5,
+                  'line-opacity': 0.8,
+                },
               },
-              paint: {
-                'line-color': '#0000ff',
-                'line-width': 5,
-                'line-opacity': 0.8,
-              },
-            });
+              map.getLayer('sims') ? 'sims' : undefined
+            );
           }
         } else if (routeSource) {
           map.removeLayer('route');
@@ -58,7 +122,7 @@ export const MapComponent: MeiosisComponent = () => {
         }
 
         let curVehicleOnMap = false;
-        sims.forEach((vehicle) => {
+        const features = sims.map((vehicle) => {
           const [id, _, lon, lat, eta, desc] = vehicle;
           if (id === curVehicleId) {
             curVehicleOnMap = true;
@@ -72,59 +136,80 @@ export const MapComponent: MeiosisComponent = () => {
           }
           const curVehicle = settings.vehicles.find((v) => v.id === id);
           if (!curVehicle) return;
-          const { type, label, state } = curVehicle;
+          const { type, label, state, icon, defaultIcon } = curVehicle;
 
-          const json = {
+          return {
             id,
             type: 'Feature',
             geometry: {
               type: 'Point',
               coordinates: [lon, lat],
             },
-            properties: { id, type, label, desc: desc || curVehicle.desc, state, eta: new Date(eta) },
-          } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'eta'>>;
-          const pointSource = map.getSource(id) as GeoJSONSource;
-          if (pointSource) {
-            pointSource.setData(json);
-          } else {
-            map.addSource(id, { type: 'geojson', data: json });
-            map.addLayer({
+            properties: {
               id,
-              type: 'symbol',
-              source: id,
-              layout: {
-                'icon-image':
-                  curVehicle.defaultIcon || !curVehicle.icon ? curVehicle.type : `icon_${simpleHash(curVehicle.icon)}`,
-              },
-            });
-            map.on('click', id, async (e) => {
-              if (!e.features || e.features.length < 1) return;
-              const { geometry, properties = {} } = e.features![0];
-              const { desc = '' } = properties;
-              const coordinates = (geometry as GeoJSONPoint).coordinates.slice() as [number, number];
-              const msg = eta === 0 ? t('ARRIVED') : `${t('ETA')}: ${new Date(eta).toLocaleTimeString()}`;
-              const description = msg + render(desc, true);
-              // Center the map on the coordinates of any clicked symbol from the 'symbols' layer.
-              map.flyTo({
-                center: coordinates,
-              });
-              new Popup()
-                .setLngLat([coordinates[0], coordinates[1] + 0.002])
-                .setHTML(description)
-                .addTo(map);
-              await getRouteSim(curVehicle);
-            });
-            // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
-            map.on('mouseenter', id, () => {
-              map.getCanvas().style.cursor = 'pointer';
-            });
-
-            // Change it back to a pointer when it leaves.
-            map.on('mouseleave', id, () => {
-              map.getCanvas().style.cursor = '';
-            });
-          }
+              type,
+              label,
+              desc: desc || curVehicle.desc,
+              state,
+              eta: new Date(eta),
+              icon: defaultIcon ? type : `icon_${simpleHash(icon)}`,
+            },
+          } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'eta' | 'icon'>>;
         });
+        const fc = { type: 'FeatureCollection', features } as FeatureCollection;
+
+        const id = 'sims';
+        const pointSource = map.getSource(id) as GeoJSONSource;
+        if (pointSource) {
+          pointSource.setData(fc);
+        } else {
+          map.addSource(id, { type: 'geojson', data: fc });
+          map.addLayer({
+            id,
+            type: 'symbol',
+            source: id,
+            layout: {
+              'icon-allow-overlap': true,
+              'icon-image': ['get', 'icon'],
+            },
+          });
+          map.on('click', id, async (e) => {
+            if (!e.features || e.features.length < 1) return;
+            const { geometry, properties = {} } = e.features![0];
+            const { desc = '', label, eta, id: vehicleId } = properties;
+            const coordinates = (geometry as GeoJSONPoint).coordinates.slice() as [number, number];
+            const delta = eta === 0 ? 0 : new Date(eta).valueOf() - Date.now();
+            const arrivalIn = `${padLeft(Math.round((delta / 3600000) % 24))}:${padLeft(
+              Math.round((delta / 60000) % 60)
+            )}`;
+            const deltaMsg = delta === 0 ? '' : `${t('ARRIVAL_IN')} ${arrivalIn}`;
+            const msg = eta === 0 ? t('ARRIVED') : `${t('ETA')}: ${new Date(eta).toLocaleTimeString()} (${deltaMsg}).`;
+            const description = render(
+              `###### ${label}
+              ${msg}
+              ${desc}`,
+              true
+            );
+            // // Center the map on the coordinates of any clicked symbol from the 'symbols' layer.
+            // map.flyTo({
+            //   center: coordinates,
+            // });
+            new Popup()
+              .setLngLat([coordinates[0], coordinates[1] + 0.002])
+              .setHTML(description)
+              .addTo(map);
+            await getRouteSim(vehicleId);
+          });
+          // Change the cursor to a pointer when the it enters a feature in the 'symbols' layer.
+          map.on('mouseenter', id, () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+
+          // Change it back to a pointer when it leaves.
+          map.on('mouseleave', id, () => {
+            map.getCanvas().style.cursor = '';
+          });
+        }
 
         if (curVehicleId && !curVehicleOnMap) {
           const curVehicle = settings.vehicles?.find((v) => v.id === curVehicleId);
@@ -144,22 +229,22 @@ export const MapComponent: MeiosisComponent = () => {
             } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'visible' | 'eta'>>;
             if (!curVehicleSource) {
               map.addSource(editPoiId, { type: 'geojson', data: json });
-              map.addLayer({
-                id: editPoiId,
-                type: 'symbol',
-                source: editPoiId,
-                layout: {
-                  'icon-image':
-                    curVehicle.defaultIcon || !curVehicle.icon
-                      ? curVehicle.type
-                      : `icon_${simpleHash(curVehicle.icon)}`,
+              map.addLayer(
+                {
+                  id: editPoiId,
+                  type: 'symbol',
+                  source: editPoiId,
+                  layout: {
+                    'icon-image':
+                      curVehicle.defaultIcon || !curVehicle.icon
+                        ? curVehicle.type
+                        : `icon_${simpleHash(curVehicle.icon)}`,
+                  },
                 },
-              });
+                map.getLayer('sims') ? 'sims' : undefined
+              );
             }
           }
-        }
-
-        if (routes && routes.features.length > 0) {
         }
       }
 

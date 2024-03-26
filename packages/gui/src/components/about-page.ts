@@ -1,6 +1,6 @@
 import m from 'mithril';
 import { ISelectOptions, Select } from 'mithril-materialized';
-import { LANGUAGE, Pages } from '../models';
+import { Pages } from '../models';
 import { Languages, MeiosisComponent, UserRole, i18n, t } from '../services';
 
 export const AboutPage: MeiosisComponent = () => {
@@ -12,11 +12,10 @@ export const AboutPage: MeiosisComponent = () => {
     }) => setPage(Pages.ABOUT),
     view: ({
       attrs: {
-        state: { role },
-        actions: { setRole },
+        state: { role, language },
+        actions: { setRole, setLanguage },
       },
     }) => {
-      const language = localStorage.getItem(LANGUAGE);
       const roleIcon = role === 'user' ? 'person' : role === 'editor' ? 'edit' : 'manage_accounts';
 
       return m(
@@ -37,21 +36,20 @@ export const AboutPage: MeiosisComponent = () => {
             },
           } as ISelectOptions<UserRole>),
           m(Select, {
-            label: t('SELECT_LANGUAGE'),
             className: 'col s6',
             checkedId: language,
             iconName: 'language',
+            label: t('SELECT_LANGUAGE'),
             options: [
-              { id: 'nl', label: 'Nederlands' },
-              { id: 'en', label: 'English' },
+              { id: 'en', label: i18n.locales.en.name },
+              { id: 'nl', label: i18n.locales.nl.name },
+              { id: 'de', label: i18n.locales.de.name },
             ],
-            onchange: (language) => {
-              i18n.loadAndSetLocale(language[0]);
+            onchange: (l) => {
+              setLanguage(l[0]);
             },
           } as ISelectOptions<Languages>),
           m('.col.s12', [
-            m('h5', 'About'),
-            m('p', 'TBD'),
             m('h5', 'Attribution'),
             m(
               'p',

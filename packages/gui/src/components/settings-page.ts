@@ -5,6 +5,8 @@ import { FormAttributes, LayoutForm, UIForm } from 'mithril-ui-form';
 import { UploadDownload } from './ui/upload-download';
 import { SimControl } from './map/sim-control';
 import { ISelectOptions, Select } from 'mithril-materialized';
+import { extractLatLong } from '../utils';
+import { MiniMapComponent } from './map';
 
 export const SettingsPage: MeiosisComponent = () => {
   const defaultIcons = new Map<VehicleType | PoiType, string>([
@@ -71,7 +73,8 @@ export const SettingsPage: MeiosisComponent = () => {
       options: [{ id: '.png' }],
     },
     { id: 'poi', label: t('POI2'), type: 'select', options: 'pois', required: true },
-    { id: 'desc', type: 'textarea', label: t('DESCRIPTION') },
+    { id: 'desc', type: 'textarea', label: t('DESCRIPTION2'), className: 'col s6' },
+    { id: 'desc', type: 'markdown', label: t('PREVIEW'), readonly: true, show: ['desc'], className: 'col s6' },
   ];
 
   const poiForm: UIForm<PointOfInterest> = [
@@ -82,7 +85,7 @@ export const SettingsPage: MeiosisComponent = () => {
       type: 'select',
       label: t('TYPE'),
       required: true,
-      value: 'car',
+      value: 'poi',
       options: [
         { id: 'poi', label: t('POI') },
         { id: 'warehouse', label: t('WAREHOUSE') },
@@ -98,9 +101,11 @@ export const SettingsPage: MeiosisComponent = () => {
       required: true,
       options: [{ id: '.png' }],
     },
-    { id: 'lat', type: 'number', label: t('LAT'), className: 'col s6' },
-    { id: 'lon', type: 'number', label: t('LON'), className: 'col s6' },
-    { id: 'desc', type: 'textarea', label: t('DESCRIPTION') },
+    { id: 'latlon', type: 'text', label: t('LATLON', 'TITLE'), placeholder: t('LATLON', 'DESC'), className: 'col s6' },
+    { id: 'lat', type: 'number', disabled: true, label: t('LAT'), className: 'col s3' },
+    { id: 'lon', type: 'number', disabled: true, label: t('LON'), className: 'col s3' },
+    { id: 'desc', type: 'textarea', label: t('DESCRIPTION2'), className: 'col s6' },
+    { id: 'desc', type: 'markdown', label: t('PREVIEW'), readonly: true, show: ['desc'], className: 'col s6' },
   ];
 
   const form = [
@@ -119,8 +124,8 @@ export const SettingsPage: MeiosisComponent = () => {
       setPage(Pages.SETTINGS);
     },
     view: ({ attrs: { state, actions } }) => {
-      const { settings } = state;
-      const { saveSettings } = actions;
+      const { settings, language } = state;
+      const { saveSettings, setLanguage } = actions;
 
       return m(
         '.container',
@@ -128,7 +133,7 @@ export const SettingsPage: MeiosisComponent = () => {
           m('.col.s12', [
             m(Select, {
               className: 'left',
-              initialValue: i18n.currentLocale,
+              checkedId: language,
               iconName: 'language',
               label: t('SELECT_LANGUAGE'),
               options: [
@@ -137,8 +142,7 @@ export const SettingsPage: MeiosisComponent = () => {
                 { id: 'de', label: i18n.locales.de.name },
               ],
               onchange: async (l) => {
-                console.log(i18n.currentLocale);
-                await i18n.loadAndSetLocale(l[0]);
+                setLanguage(l[0]);
               },
             } as ISelectOptions<Languages>),
             m(UploadDownload, { settings, saveSettings }),
@@ -149,26 +153,31 @@ export const SettingsPage: MeiosisComponent = () => {
             form,
             obj: settings,
             onchange: () => {
-              // console.log(settings);
               const { vehicles = [], pois = [] } = settings;
               vehicles.forEach((v) => {
                 if (v.defaultIcon) {
                   const icon = defaultIcons.get(v.type);
-                  // console.log(icon);
                   if (icon) v.icon = icon;
                 }
               });
               pois.forEach((p) => {
-                // console.log(p.icon);
+                if (p.latlon) {
+                  const coordinates = extractLatLong(p.latlon);
+                  if (coordinates) {
+                    const { lat, lon } = coordinates;
+                    p.lat = lat;
+                    p.lon = lon;
+                  }
+                }
                 if (p.defaultIcon) {
                   const icon = defaultIcons.get(p.type);
-                  // console.log(icon);
                   if (icon) p.icon = icon;
                 }
               });
               saveSettings(settings);
             },
           } as FormAttributes<Settings>),
+          m(MiniMapComponent, { state, actions }),
         ])
       );
     },

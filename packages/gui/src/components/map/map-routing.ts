@@ -16,7 +16,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
     getRoute: (v: Vehicle) => Promise<void>
   ) => {
     settings.vehicles = settings.vehicles.map((v) => (v.id === curVehicle.id ? curVehicle : v));
-    await saveSettings(settings);
+    // await saveSettings(settings);
     await getRoute(curVehicle);
   };
 

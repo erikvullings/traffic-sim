@@ -1,7 +1,7 @@
 import { meiosisSetup } from 'meiosis-setup';
 import { MeiosisCell, MeiosisComponent as MComponent, Patch, Service } from 'meiosis-setup/types';
 import m, { FactoryComponent } from 'mithril';
-import { routingSvc } from '.';
+import { Languages, i18n, routingSvc } from '.';
 import {
   AddVehicleToSim,
   BaseRouteRequest,
@@ -22,9 +22,11 @@ import { scrollToTop } from '../utils';
 import { vehicleTypeToCosting } from '../components/map';
 
 // const settingsSvc = restServiceFactory<Settings>('settings');
+export const LANGUAGE = 'TS_LANGUAGE';
 const USER_ROLE = 'TS_USER_ROLE';
 const ZOOM_LEVEL = 'TS_ZOOM_LEVEL';
 const LON_LAT = 'TS_LON_LAT';
+
 export const APP_TITLE = 'Traffic Simulator';
 export const API = `${process.env.SERVER}/api`;
 const API_SETTINGS = `${API}/settings`;
@@ -34,6 +36,7 @@ export interface State {
   page: Pages;
   loggedInUser?: User;
   role: UserRole;
+  language: Languages;
   settings: Settings;
   map: maplibregl.Map;
   // draw: MapboxDraw;
@@ -59,6 +62,7 @@ export interface Actions {
   ) => void;
   saveSettings: (settings: Settings) => Promise<void>;
   setRole: (role: UserRole) => void;
+  setLanguage: (language: Languages) => void;
 
   /** Map services */
   setMap: (map: maplibregl.Map) => void;
@@ -69,7 +73,7 @@ export interface Actions {
   getLonLat: () => [lon: number, lat: number];
 
   getRoute: (vehicle: Vehicle) => Promise<void>;
-  getRouteSim: (vehicle: Vehicle) => Promise<void>;
+  getRouteSim: (vehicleId: ID) => Promise<void>;
   pauseResumeVehicle: (vehicle: Vehicle) => Promise<void>;
   updateSimDesc: (id: string, desc: string) => Promise<void>;
 
@@ -82,6 +86,11 @@ export type MeiosisComponent<T extends { [key: string]: any } = {}> = FactoryCom
   actions: Actions;
   options?: T;
 }>;
+
+export const setLanguage = async (locale = i18n.currentLocale) => {
+  localStorage.setItem(LANGUAGE, locale);
+  await i18n.loadAndSetLocale(locale);
+};
 
 export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, states }) => ({
   // addDucks: (cell, amount) => {
@@ -120,6 +129,10 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
   setRole: (role) => {
     localStorage.setItem(USER_ROLE, role);
     update({ role });
+  },
+  setLanguage: (language: Languages) => {
+    setLanguage(language);
+    update({ language });
   },
 
   setMap: (map) => update({ map: () => map }),
@@ -180,8 +193,8 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
       },
     });
   },
-  getRouteSim: async (v) => {
-    const route = await m.request<RouteGeoJSON>(`${API}/sim/vehicle/${v.id}`);
+  getRouteSim: async (vehicleId) => {
+    const route = await m.request<RouteGeoJSON>(`${API}/sim/vehicle/${vehicleId}`);
     update({
       route: () => route,
     });
@@ -233,10 +246,15 @@ let updateSimServiceStarted = false;
 
 /** Service to update the simulation state */
 const updateSimState: Service<State> = {
-  run: ({ update }) => {
+  run: ({ update, getState }) => {
     if (updateSimServiceStarted) return;
     updateSimServiceStarted = true;
     const updateSimState = async () => {
+      const { page, simState } = getState();
+      if (page === Pages.SETTINGS) {
+        setTimeout(updateSimState, simState === 'started' ? 5000 : 10000);
+        return;
+      }
       const result = await m.request<{ running: boolean; vehicles: ExtSimInfo[] }>(`${API}/sim/state`);
       if (!result) return;
       const { running, vehicles = [] } = result;
@@ -298,10 +316,12 @@ export const reloadSettings = async () => {
 
 const loadData = async () => {
   const role = (localStorage.getItem(USER_ROLE) || 'user') as UserRole;
+  const language: Languages = (localStorage.getItem(LANGUAGE) as Languages) || 'unknown';
   const settings = await reloadSettings();
 
   cells().update({
     role,
+    language,
     settings: () => settings || {},
   });
 };

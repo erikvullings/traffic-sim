@@ -1,7 +1,5 @@
 import { padLeft } from 'mithril-materialized';
 
-export const LANGUAGE = 'TS_LANGUAGE';
-
 const supRegex = /\^([^_ ]+)(_|$|\s)/g;
 const subRegex = /\_([^\^ ]+)(\^|$|\s)/g;
 
@@ -185,3 +183,27 @@ export const scrollToTop = (): void => {
     behavior: 'smooth',
   });
 };
+
+/** Extract latitude and longitude from a Google Maps string */
+export const extractLatLong = (text: string): { lat: number; lon: number } | undefined => {
+  const regex = /^(-?\d+(\.\d+)?), (-?\d+(\.\d+)?)$/;
+  const match = text.match(regex);
+
+  if (match) {
+    const lat = parseFloat(match[1]);
+    const lon = parseFloat(match[3]);
+    return { lat, lon };
+  } else {
+    return undefined;
+  }
+};
+
+export const copyToClipboard = (text: string, callback?: (error?: string) => void) =>
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      callback && callback();
+    })
+    .catch((error) => {
+      callback && callback(error.ToString());
+    });

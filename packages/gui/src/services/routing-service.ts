@@ -57,12 +57,12 @@ class RoutingService {
     // console.log(JSON.stringify(this.dashboards, null, 2));
   }
 
-  public getList() {
-    return this.pages;
+  private setList(list: Page[]) {
+    this.pages = list;
   }
 
-  public setList(list: Page[]) {
-    this.pages = list;
+  public getList() {
+    return this.pages;
   }
 
   public get defaultRoute() {

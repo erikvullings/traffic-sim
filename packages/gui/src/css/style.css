@@ -826,6 +826,12 @@ ul.kanban > li {
   right: 0;
 }
 
+#mini-map {
+  position: relative;
+  left: 0;
+  width: calc(100vw - 90px);
+  height: 600px;
+}
 .map-routing {
   position: absolute;
   background-color: white;
@@ -847,4 +853,9 @@ ul.kanban > li {
 }
 .p0 > i.left {
   margin-right: 5px;
+}
+
+#pois .markdown,
+#vehicles .markdown {
+  font-size: small;
 }

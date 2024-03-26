@@ -7,6 +7,7 @@ import pedestrian from '../../assets/icons/walk.png';
 import motorcycle from '../../assets/icons/motorcycle.png';
 import scooter from '../../assets/icons/scooter.png';
 import bicycle from '../../assets/icons/bicycle.png';
+import warehouse from '../../assets/icons/warehouse.png';
 
 // ICONS
 // import marker from '../../assets/icons/mapbox-marker-icon-20px-blue.png';
@@ -36,6 +37,7 @@ export const loadImages = async (map: MaplibreMap, vehicles?: Vehicle[]) => {
   await loadImage(map, 'bicycle', bicycle);
   await loadImage(map, 'scooter', scooter);
   await loadImage(map, 'motorcycle', motorcycle);
+  await loadImage(map, 'warehouse', warehouse);
   if (!vehicles || vehicles.length === 0) return;
   for (const vehicle of vehicles) {
     const { icon } = vehicle;
