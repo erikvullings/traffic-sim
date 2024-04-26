@@ -34,9 +34,10 @@ export const UploadDownload: FactoryComponent<{
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const parsedSettings = JSON.parse(reader.result as string);
-        // Send parsed settings to the server
-        // uploadSettings(parsedSettings);
+        const parsedSettings = JSON.parse(reader.result as string) as Settings;
+        if (parsedSettings.vehicles && parsedSettings.vehicles instanceof Array) {
+          parsedSettings.vehicles = parsedSettings.vehicles.map((v) => ({ ...v, visible: 'visible' }));
+        }
         saveSettings(parsedSettings);
       } catch (error) {
         console.error('Error parsing JSON file:', error);
