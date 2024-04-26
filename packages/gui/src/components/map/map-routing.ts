@@ -54,7 +54,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
             m('.row', [
               m('.col.s4.mt18', [
                 m(FlatButton, {
-                  iconName: curVehicle.visible === 'hidden' ? 'visibility' : 'visibility_off',
+                  iconName: curVehicle.visible === 'hidden' ? 'visibility_off' : 'visibility',
                   className: 'right p0',
                   onclick: async () => {
                     curVehicle.visible = curVehicle.visible === 'hidden' ? 'visible' : 'hidden';
