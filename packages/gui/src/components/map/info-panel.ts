@@ -1,15 +1,14 @@
 import m from 'mithril';
 import { MeiosisComponent, t } from '../../services';
-import { padLeft } from 'mithril-materialized';
 import { render } from 'mithril-ui-form';
 import { capitalize } from '../../utils';
 import { VehicleVisibility } from '../../models';
+import { computeETA } from './map-utils';
 
 export const InfoPanel: MeiosisComponent = () => {
   const etaToMsg = (id: [id: string, VehicleVisibility] = ['', 'hidden'], eta = 0, desc = '') => {
-    const delta = eta === 0 ? 0 : new Date(eta).valueOf() - Date.now();
-    const arrivalIn = `${padLeft(Math.round((delta / 3600000) % 24))}:${padLeft(Math.round((delta / 60000) % 60))}`;
-    const deltaMsg = delta === 0 ? '' : `${t('ARRIVAL_IN')} ${arrivalIn}`;
+    const arrivalIn = computeETA(eta);
+    const deltaMsg = eta === 0 ? '' : `${t('ARRIVAL_IN')} ${arrivalIn}`;
     const etaMsg =
       eta === 0
         ? t('ARRIVED')

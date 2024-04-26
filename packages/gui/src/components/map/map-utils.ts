@@ -14,6 +14,7 @@ import warehouse from '../../assets/icons/warehouse.png';
 // import marker from '../../assets/icons/mapbox-marker-icon-20px-blue.png';
 import { Actions } from '../../services';
 import { CostingModels, Vehicle, VehicleType } from '../../models';
+import { padLeft } from 'mithril-materialized';
 
 export const drawConfig = {
   displayControlsDefault: false,
@@ -116,4 +117,15 @@ export const vehicleTypeToCosting = (type: VehicleType) => {
     default:
       return CostingModels.AUTO;
   }
+};
+
+export const computeETA = (arrivalTime: number): string => {
+  const now = new Date();
+  const arrivalDate = new Date(arrivalTime);
+  const offset = now.getTimezoneOffset() * 60000; // convert offset to milliseconds
+  const adjustedArrivalTime = new Date(arrivalDate.getTime() + offset);
+  const diff = adjustedArrivalTime.getTime() - now.getTime();
+  const hours = Math.floor(diff / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  return `${padLeft(hours)}:${padLeft(minutes)}`;
 };

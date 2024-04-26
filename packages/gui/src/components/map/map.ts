@@ -4,20 +4,10 @@ import { Feature, FeatureCollection, Point as GeoJSONPoint } from 'geojson';
 import { GeoJSONSource } from 'maplibre-gl';
 import { simpleHash } from '.';
 import { MeiosisComponent } from '../../services/meiosis';
-import { loadImages, setLonLat, setZoomLevel } from './map-utils';
+import { computeETA, loadImages, setLonLat, setZoomLevel } from './map-utils';
 import { PointOfInterest, Vehicle, VehicleVisibility } from '../../models';
 import { render } from 'mithril-ui-form';
 import { t } from '../../services';
-import { padLeft } from 'mithril-materialized';
-// https://github.com/korywka/mapbox-controls/tree/master/packages/tooltip
-// import TooltipControl from '@mapbox-controls/tooltip';
-
-// // @ts-ignore
-// MapboxDraw.constants.classes.CONTROL_BASE = 'maplibregl-ctrl';
-// // @ts-ignore
-// MapboxDraw.constants.classes.CONTROL_PREFIX = 'maplibregl-ctrl-';
-// // @ts-ignore
-// MapboxDraw.constants.classes.CONTROL_GROUP = 'maplibregl-ctrl-group';
 
 export const MapComponent: MeiosisComponent = () => {
   let map: MaplibreMap;
@@ -187,11 +177,8 @@ export const MapComponent: MeiosisComponent = () => {
             const { geometry, properties = {} } = e.features![0];
             const { desc = '', label, eta, id: vehicleId } = properties;
             const coordinates = (geometry as GeoJSONPoint).coordinates.slice() as [number, number];
-            const delta = eta === 0 ? 0 : new Date(eta).valueOf() - Date.now();
-            const arrivalIn = `${padLeft(Math.round((delta / 3600000) % 24))}:${padLeft(
-              Math.round((delta / 60000) % 60)
-            )}`;
-            const deltaMsg = delta === 0 ? '' : `${t('ARRIVAL_IN')} ${arrivalIn}`;
+            const arrivalIn = computeETA(eta);
+            const deltaMsg = eta === 0 ? '' : `${t('ARRIVAL_IN')} ${arrivalIn}`;
             const msg = eta === 0 ? t('ARRIVED') : `${t('ETA')}: ${new Date(eta).toLocaleTimeString()} (${deltaMsg}).`;
             const description = render(
               `###### ${label}
