@@ -19,10 +19,16 @@ In all `packages` folder, copy `example.env` to `.env`. Optionally, update your 
 pnpm i
 npm start
 ```
+## Screenshots
+
+![Admin view](https://github.com/erikvullings/traffic-sim/assets/3140667/aeed5d68-0a1f-4efe-bbb3-80434e7c1b20)
+Admin view. You can set user to Administrator in About (i) page. An admin can, via the settings, add new vehicles including their route.
+
+![User view](https://github.com/erikvullings/traffic-sim/assets/3140667/0f1ff86f-be7b-46b2-ae39-c81d4dd7be7a)
+The default user view has no controls.
 
 ## TODO
 
 - Synchronize with testbed time service (optional)
 - Display (sim) time in app (simState contains current time and speed, as well as state).
-- Allow the user to add a via or end location by clicking on the map
-- Show route under icons
+
