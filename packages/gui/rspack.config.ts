@@ -34,6 +34,7 @@ const configuration: Configuration = {
   devServer: {
     port: APP_PORT,
   },
+  devtool: 'source-map',
   plugins: [
     new DefinePlugin({
       'process.env.SERVER': `'${SERVER}'`,

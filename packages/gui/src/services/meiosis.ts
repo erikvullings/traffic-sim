@@ -149,12 +149,15 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
   },
   getLonLat: () => JSON.parse(localStorage.getItem(LON_LAT) || '[5, 51]') as [lon: number, lat: number],
 
-  getRoute: async (v) => {
-    const {
-      sims,
-      settings: { pois = [] },
-    } = states();
-    const { id, poi, pois: poiIds = [] } = v;
+  getRoute: async (vehicle) => {
+    const { sims, settings } = states();
+    settings.vehicles = settings.vehicles.map((v) => (v.id === vehicle.id ? vehicle : v));
+    if (vehicle.visible === 'hidden') {
+      update({ settings });
+      return;
+    }
+    const { pois = [] } = settings;
+    const { id, poi, pois: poiIds = [] } = vehicle;
     const sim = sims.find((s) => s[0] === id);
     const lon = sim ? sim[2] : undefined;
     const lat = sim ? sim[3] : undefined;
@@ -165,18 +168,18 @@ export const appActions: (cell: MeiosisCell<State>) => Actions = ({ update, stat
       .map((p) => ({ lat: p.lat, lon: p.lon }));
     const curLocation: Position = { lat: lat || start?.lat || 0, lon: lon || start?.lon || 0 };
     const body: BaseRouteRequest = {
-      costing: `${vehicleTypeToCosting(v.type)}`,
+      costing: `${vehicleTypeToCosting(vehicle.type)}`,
       locations: [curLocation, ...vias],
     };
     if (body.locations.length < 2) return;
     // console.log(body);
-    const route = await m.request<RouteGeoJSON>(getApiRoute(v.id), { method: 'POST', body });
+    const route = await m.request<RouteGeoJSON>(getApiRoute(vehicle.id), { method: 'POST', body });
     // console.log(route);
     if (!route || route.features.length === 0) return;
     const feature = route.features[0];
-    if (v.state === 'moving') {
+    if (vehicle.state === 'moving') {
       const body: AddVehicleToSim = {
-        id: v.id,
+        id: vehicle.id,
         path: feature.geometry.coordinates as Point[],
         durations: feature.properties.durations,
       };
@@ -306,7 +309,10 @@ cells.map(() => {
 });
 
 export const reloadSettings = async () => {
-  const settings = await m.request<Settings>(API_SETTINGS);
+  const settings = (await m.request<Settings>(API_SETTINGS)) || {};
+  if (!settings.mapUrl) {
+    settings.mapUrl = 'http://localhost/maptiler/styles/basic-preview/style.json';
+  }
   settings?.vehicles?.forEach((v) => {
     v.state = 'not_initialized';
     v.pois = [];

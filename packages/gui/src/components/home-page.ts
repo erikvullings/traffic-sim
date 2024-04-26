@@ -1,7 +1,7 @@
 import m from 'mithril';
 import { Pages } from '../models';
 import { MeiosisComponent } from '../services';
-import { MapComponent, MapRoutingComponent } from './map';
+import { InfoPanel, MapComponent, MapRoutingComponent } from './map';
 
 export const HomePage: MeiosisComponent = () => {
   return {
@@ -18,6 +18,7 @@ export const HomePage: MeiosisComponent = () => {
           role !== 'user'
             ? m(MapRoutingComponent, { key: `map_routing_${version}`, state, actions })
             : m('div', { key: `map_routing_0` }),
+          m(InfoPanel, { key: 'info-panel', state, actions }),
         ]),
       ];
     },

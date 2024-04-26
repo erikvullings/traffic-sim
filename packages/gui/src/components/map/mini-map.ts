@@ -79,7 +79,6 @@ export const MiniMapComponent: MeiosisComponent = () => {
         state: { settings },
       },
     }) => {
-      console.log('mini-map: view ' + settings.pois);
       if (map) drawMap(settings);
 
       return m('#mini-map');
@@ -90,12 +89,12 @@ export const MiniMapComponent: MeiosisComponent = () => {
         actions,
       },
     }) => {
-      const { vehicles, mapUrl = 'http://localhost/maptiler/styles/basic-preview/style.json' } = settings;
+      const { vehicles, mapUrl } = settings;
       const { getLonLat, getZoomLevel } = actions;
 
       const miniMap = new MaplibreMap({
         container: 'mini-map',
-        style: mapUrl,
+        style: mapUrl!,
         // style: VECTOR_TILE_SERVER ? VECTOR_TILE_SERVER : brtStyle,
         center: getLonLat(),
         zoom: getZoomLevel(),

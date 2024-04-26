@@ -35,7 +35,7 @@ export const loadImages = async (map: MaplibreMap, vehicles?: Vehicle[]) => {
   await loadImage(map, 'truck', truck);
   await loadImage(map, 'pedestrian', pedestrian);
   await loadImage(map, 'bicycle', bicycle);
-  await loadImage(map, 'scooter', scooter);
+  await loadImage(map, 'motorscooter', scooter);
   await loadImage(map, 'motorcycle', motorcycle);
   await loadImage(map, 'warehouse', warehouse);
   if (!vehicles || vehicles.length === 0) return;
@@ -47,35 +47,35 @@ export const loadImages = async (map: MaplibreMap, vehicles?: Vehicle[]) => {
   }
 };
 
-export const loadMissingImages = (map: MaplibreMap) => {
-  map.on('styleimagemissing', async (e) => {
-    // switch (e.id as VehicleType) {
-    //   case 'car': {
-    //     const img = await map.loadImage(car);
-    //     if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
-    //     break;
-    //   }
-    //   case 'truck': {
-    //     const img = await map.loadImage(truck);
-    //     if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
-    //     break;
-    //   }
-    //   case 'pedestrian': {
-    //     const img = await map.loadImage(pedestrian);
-    //     if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
-    //     break;
-    //   }
-    // }
-    // const id = e.id; // id of the missing image
-    // const url = id.endsWith('/') ? marker : `${process.env.SERVER}/layer_styles/${id}`;
-    // try {
-    //   const response = await map.loadImage(url);
-    //   if (!map.hasImage(id)) map.addImage(id, response.data);
-    // } catch (e: any) {
-    //   console.error(e);
-    // }
-  });
-};
+// export const loadMissingImages = (map: MaplibreMap) => {
+//   map.on('styleimagemissing', async (e) => {
+//     switch (e.id as VehicleType) {
+//       case 'car': {
+//         const img = await map.loadImage(car);
+//         if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
+//         break;
+//       }
+//       case 'truck': {
+//         const img = await map.loadImage(truck);
+//         if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
+//         break;
+//       }
+//       case 'pedestrian': {
+//         const img = await map.loadImage(pedestrian);
+//         if (!map.hasImage(e.id)) map.addImage(e.id, img.data);
+//         break;
+//       }
+//     }
+//     const id = e.id; // id of the missing image
+//     const url = id.endsWith('/') ? marker : `${process.env.SERVER}/layer_styles/${id}`;
+//     try {
+//       const response = await map.loadImage(url);
+//       if (!map.hasImage(id)) map.addImage(id, response.data);
+//     } catch (e: any) {
+//       console.error(e);
+//     }
+//   });
+// };
 
 export const setZoomLevel = (map: MaplibreMap, actions: Actions) => {
   const zoom = map.getZoom();

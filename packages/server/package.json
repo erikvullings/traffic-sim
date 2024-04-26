@@ -5,9 +5,9 @@
     "start": "npm run dev"
   },
   "dependencies": {
-    "@iwpnd/valhalla-ts": "^1.0.3",
+    "@iwpnd/valhalla-ts": "^1.0.7",
     "dotenv": "16.4.5",
-    "hono": "^4.0.9"
+    "hono": "^4.2.8"
   },
   "devDependencies": {
     "@types/bun": "latest"

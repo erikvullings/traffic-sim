@@ -5,7 +5,7 @@ import { GeoJSONSource } from 'maplibre-gl';
 import { simpleHash } from '.';
 import { MeiosisComponent } from '../../services/meiosis';
 import { loadImages, setLonLat, setZoomLevel } from './map-utils';
-import { PointOfInterest, Vehicle } from '../../models';
+import { PointOfInterest, Vehicle, VehicleVisibility } from '../../models';
 import { render } from 'mithril-ui-form';
 import { t } from '../../services';
 import { padLeft } from 'mithril-materialized';
@@ -31,13 +31,13 @@ export const MapComponent: MeiosisComponent = () => {
     }) => {
       const editPoiId = `edit-${curVehicleId}`;
       if (map) {
-        const { pois = [] } = settings;
+        const { pois = [], vehicles = [] } = settings;
         const visiblePois = pois.filter(
           (p) => p.type !== 'poi' && typeof p.lon !== 'undefined' && typeof p.lat !== 'undefined'
         );
         if (visiblePois.length > 0) {
           const features = visiblePois.map(
-            ({ id, label, desc, type, lon, lat, icon, defaultIcon }) =>
+            ({ id, type, label, desc, lon, lat, icon, defaultIcon }) =>
               ({
                 id,
                 type: 'Feature',
@@ -46,7 +46,7 @@ export const MapComponent: MeiosisComponent = () => {
                   coordinates: [lon, lat],
                 },
                 properties: { id, type, label, desc, icon: defaultIcon ? type : `icon_${simpleHash(icon)}` },
-              } as Feature<GeoJSONPoint, Pick<PointOfInterest, 'id' | 'label' | 'type' | 'icon' | 'desc'>>)
+              } as Feature<GeoJSONPoint, Pick<PointOfInterest, 'id' | 'type' | 'label' | 'desc' | 'icon'>>)
           );
 
           const id = 'pois';
@@ -122,40 +122,49 @@ export const MapComponent: MeiosisComponent = () => {
         }
 
         let curVehicleOnMap = false;
-        const features = sims.map((vehicle) => {
-          const [id, _, lon, lat, eta, desc] = vehicle;
-          if (id === curVehicleId) {
-            curVehicleOnMap = true;
+        const lookupName = vehicles.reduce((acc, cur) => {
+          acc.set(cur.id, cur.visible);
+          return acc;
+        }, new Map<string, VehicleVisibility>());
+        const features = sims
+          .filter((s) => {
+            const found = lookupName.get(s[0]);
+            return found !== 'hidden';
+          })
+          .map((vehicle) => {
+            const [id, _, lon, lat, eta, desc] = vehicle;
+            if (id === curVehicleId) {
+              curVehicleOnMap = true;
 
-            const source = map.getSource(editPoiId);
-            if (source) {
-              // console.log(`Removing layer ${curVehicleId}`);
-              map.removeLayer(editPoiId);
-              map.removeSource(editPoiId);
+              const source = map.getSource(editPoiId);
+              if (source) {
+                // console.log(`Removing layer ${curVehicleId}`);
+                map.removeLayer(editPoiId);
+                map.removeSource(editPoiId);
+              }
             }
-          }
-          const curVehicle = settings.vehicles.find((v) => v.id === id);
-          if (!curVehicle) return;
-          const { type, label, state, icon, defaultIcon } = curVehicle;
+            const curVehicle = settings.vehicles.find((v) => v.id === id);
+            if (!curVehicle) return;
+            const { type, label, state, icon, defaultIcon } = curVehicle;
 
-          return {
-            id,
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [lon, lat],
-            },
-            properties: {
+            return {
               id,
-              type,
-              label,
-              desc: desc || curVehicle.desc,
-              state,
-              eta: new Date(eta),
-              icon: defaultIcon ? type : `icon_${simpleHash(icon)}`,
-            },
-          } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'eta' | 'icon'>>;
-        });
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lon, lat],
+              },
+              properties: {
+                id,
+                type,
+                label,
+                desc: desc || curVehicle.desc,
+                state,
+                eta: new Date(eta),
+                icon: defaultIcon ? type : `icon_${simpleHash(icon)}`,
+              },
+            } as Feature<GeoJSONPoint, Pick<Vehicle, 'id' | 'type' | 'label' | 'desc' | 'state' | 'eta' | 'icon'>>;
+          });
         const fc = { type: 'FeatureCollection', features } as FeatureCollection;
 
         const id = 'sims';
@@ -253,7 +262,7 @@ export const MapComponent: MeiosisComponent = () => {
     oncreate: ({
       attrs: {
         state: {
-          settings: { vehicles, mapUrl = 'http://localhost/maptiler/styles/basic-preview/style.json' },
+          settings: { vehicles, mapUrl },
         },
         actions,
       },

@@ -1,5 +1,5 @@
 import m from 'mithril';
-import { ID, Settings, Vehicle } from '../../models';
+import { ID, Vehicle } from '../../models';
 import { FlatButton, ISelectOptions, Select, TextArea } from 'mithril-materialized';
 import { MeiosisComponent, t } from '../../services';
 import { SlimdownView } from 'mithril-ui-form';
@@ -9,14 +9,8 @@ export const MapRoutingComponent: MeiosisComponent = () => {
   let editDesc = false;
   let desc: string | undefined;
 
-  const updateVehicle = async (
-    curVehicle: Vehicle,
-    settings: Settings,
-    saveSettings: (settings: Settings) => Promise<void>,
-    getRoute: (v: Vehicle) => Promise<void>
-  ) => {
-    settings.vehicles = settings.vehicles.map((v) => (v.id === curVehicle.id ? curVehicle : v));
-    // await saveSettings(settings);
+  const updateVehicle = async (curVehicle: Vehicle, getRoute: (v: Vehicle) => Promise<void>) => {
+    // settings.vehicles = settings.vehicles.map((v) => (v.id === curVehicle.id ? curVehicle : v));
     await getRoute(curVehicle);
   };
 
@@ -24,7 +18,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
     view: ({
       attrs: {
         state: { curVehicleId, settings, sims },
-        actions: { update, saveSettings, getRoute, pauseResumeVehicle, updateSimDesc },
+        actions: { update, getRoute, pauseResumeVehicle, updateSimDesc },
       },
     }) => {
       const { pois = [], vehicles = [] } = settings;
@@ -59,14 +53,14 @@ export const MapRoutingComponent: MeiosisComponent = () => {
           curVehicle && [
             m('.row', [
               m('.col.s4.mt18', [
-                // m(FlatButton, {
-                //   iconName: curVehicle.visible === 'visible' ? 'visibility' : 'visibility_off',
-                //   className: 'right p0',
-                //   onclick: async () => {
-                //     curVehicle.visible = curVehicle.visible === 'hidden' ? 'visible' : 'hidden';
-                //     await updateVehicle(curVehicle, settings, saveSettings, getRoute);
-                //   },
-                // }),
+                m(FlatButton, {
+                  iconName: curVehicle.visible === 'hidden' ? 'visibility' : 'visibility_off',
+                  className: 'right p0',
+                  onclick: async () => {
+                    curVehicle.visible = curVehicle.visible === 'hidden' ? 'visible' : 'hidden';
+                    await updateVehicle(curVehicle, getRoute);
+                  },
+                }),
                 m(FlatButton, {
                   iconName: isMoving ? 'pause' : 'play_arrow',
                   // disabled: !isMoving && !route,
@@ -88,7 +82,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                 options: pois,
                 onchange: async (v) => {
                   curVehicle.pois![i] = v[0];
-                  await updateVehicle(curVehicle, settings, saveSettings, getRoute);
+                  await updateVehicle(curVehicle, getRoute);
                 },
               } as ISelectOptions<ID>),
               i === curVehicle.pois!.length - 1
@@ -107,7 +101,7 @@ export const MapRoutingComponent: MeiosisComponent = () => {
                     disabled: isMoving,
                     onclick: async () => {
                       curVehicle.pois = curVehicle.pois!.filter((_, idx) => idx !== i);
-                      await updateVehicle(curVehicle, settings, saveSettings, getRoute);
+                      await updateVehicle(curVehicle, getRoute);
                     },
                   }),
             ]),

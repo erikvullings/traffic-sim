@@ -177,7 +177,7 @@ export const SettingsPage: MeiosisComponent = () => {
               saveSettings(settings);
             },
           } as FormAttributes<Settings>),
-          m(MiniMapComponent, { state, actions }),
+          settings?.mapUrl && m(MiniMapComponent, { state, actions }),
         ])
       );
     },
