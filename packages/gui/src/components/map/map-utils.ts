@@ -121,10 +121,9 @@ export const vehicleTypeToCosting = (type: VehicleType) => {
 
 export const computeETA = (arrivalTime: number): string => {
   const now = new Date();
-  const arrivalDate = new Date(arrivalTime);
   const offset = now.getTimezoneOffset() * 60000; // convert offset to milliseconds
-  const adjustedArrivalTime = new Date(arrivalDate.getTime() + offset);
-  const diff = adjustedArrivalTime.getTime() - now.getTime();
+  const adjustedArrivalTime = new Date(arrivalTime + offset);
+  const diff = Math.abs(adjustedArrivalTime.getTime() - now.getTime());
   const hours = Math.floor(diff / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
   return `${padLeft(hours)}:${padLeft(minutes)}`;
